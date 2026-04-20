@@ -1,36 +1,49 @@
-# Gemini Loop Skill (Reflective ML Edition)
+# Gemini Loop Component: Reflective ML Architecture 🛰️
 
-This repository contains the `gemini-loop` skill for Gemini CLI, which sets up and manages an autonomous scheduler loop for continuous task execution. 
+This sub-package implements the core logic for the **Gemini Reflective Loop**. It is designed to minimize logical drift in long-running agentic workflows by applying reinforcement learning and backpropagation metaphors to plan execution.
 
-This version heavily borrows from **Reflective Task Optimization** and **Machine Learning Training Metaphors**.
+## 🧠 Core Methodology: The Reflective Loop
 
-## Overview
+Unlike linear task executors, this skill treats task completion as an **iterative optimization problem**.
 
-The loop relies on three distinct agent roles and a fast/slow state architecture:
-1. **Scheduler**: Evaluates the global state and routes traffic.
-2. **Optimize (Forward Pass)**: Implements features using a localized, fast-moving state adapter (`active_task.json`).
-3. **Check (Backward Signal)**: Reviews the implementation, computes the "mismatch/error" and generates reusable **Local Patches** (e.g. `verification_patch`) instead of just issuing pass/fail verdicts.
+### 1. The Forward Pass (Optimize Agent)
+The implementation agent is strictly bounded by the `active_task.json`. Before every action, it performs a **Global-to-Local Context Mapping**:
+- Reads the **Strategic Prior** (`roadmap.md`) to lock the goal.
+- Injects the **Local Adapter** (`active_task.json`) which contains temporary "learned" variables and current patches.
+- Scans the **Failure Bank** (`failure_bank.json`) to adjust its probability distribution away from known error patterns (e.g., specific regex pitfalls or API timeout issues).
 
-State Management:
-- **`roadmap.md`**: Global Prior. Stable. Rarely updated.
-- **`active_task.json`**: Local Adapter. Fast. Frequently updated.
-- **`failure_bank.json`**: Shared Memory. Prevents recurring failure modes.
+### 2. The Backward Signal (Check Agent)
+The checker does not merely validate; it computes a **Loss Function** between the intended output and the actual file state.
+- **Output**: A **Local Patch**.
+- **Patch Types**:
+  - `prompt_patch`: Injects specific behavioral hints into the next Optimize cycle.
+  - `scope_patch`: Tightens or expands the allowed file-editing radius.
+  - `verification_patch`: Adds additional shell commands to the next validation phase.
 
-## Installation
+### 3. State Weighting
+| State File | Analogous to... | Update Frequency | Purpose |
+| :--- | :--- | :--- | :--- |
+| `roadmap.md` | Slow Weights / Pre-training | Low | Ensures global consistency. |
+| `active_task.json` | Fast Weights / LoRA | High | Adapts to immediate blockers. |
+| `failure_bank.json` | Replay Buffer / Experience | Continuous | Prevents catastrophic forgetting of errors. |
 
-Install this skill globally with Gemini CLI:
-```bash
-gemini skills install /path/to/gemini-loop.skill --scope user
-```
+## 🛠️ Technical Components
 
-Then reload skills in your Gemini CLI session:
-```
-/skills reload
-```
+- **`scripts/init_gemini_loop.cjs`**: Bootstraps the ML-style state environment.
+- **`SKILL.md`**: The system-level instruction set that defines role boundaries and patch generation rules.
+- **State Schema**: Versioned JSON structures for deterministic parsing by the scheduler.
 
-## Usage
+## 🚀 Deployment
 
-In any project directory, ask Gemini CLI to initialize the loop:
-> "Please setup a gemini-loop for this project"
+1. **Package**: 
+   ```bash
+   gemini skills package .
+   ```
+2. **Installation**:
+   ```bash
+   gemini skills install gemini-loop.skill
+   ```
 
-This will create a `.gemini-loop` folder with all necessary setup (roadmap template, fast state adapters, failure banks, and bash scripts) for background autonomous operation.
+---
+
+*Part of the AgentHUD Autonomous Engineering Suite.*
