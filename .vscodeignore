@@ -1,0 +1,17 @@
+.git/**
+.gitignore
+.nvmrc
+.vscode/**
+.claude/**
+.codex-loop/**
+test/**
+scripts/**
+docs/**
+roadmap.md
+tasks.json
+package-lock.json
+*.vsix
+gemini-loop-skill/**
+gemini-loop.skill
+src/**/*.test.js
+node_modules/**
