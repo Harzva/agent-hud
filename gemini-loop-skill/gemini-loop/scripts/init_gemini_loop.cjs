@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const { execSync } = require('child_process');
+const crypto = require('crypto');
 
 const workspace = process.cwd();
 const loopDir = path.join(workspace, '.gemini-loop');
@@ -12,14 +12,7 @@ fs.mkdirSync(scriptsDir, { recursive: true });
 
 function initSession(role) {
   console.log(`Initializing ${role} session...`);
-  try {
-    const output = execSync(`gemini -p "Initialize ${role} session. Reply OK." --output-format stream-json`, { encoding: 'utf8' });
-    const match = output.match(/"type":"init".*?"sessionId":"([^"]+)"/);
-    if (match) return match[1];
-  } catch (e) {
-    console.log(`Failed to init session for ${role}, using fallback placeholder.`);
-  }
-  return 'SESSION_ID_PLACEHOLDER';
+  return crypto.randomUUID();
 }
 
 const schedulerSessionId = initSession('scheduler');
@@ -28,6 +21,38 @@ const checkSessionId = initSession('check');
 
 const agentsJson = { scheduler: schedulerSessionId, optimize: optimizeSessionId, check: checkSessionId };
 fs.writeFileSync(path.join(loopDir, 'agents.json'), JSON.stringify(agentsJson, null, 2));
+
+const roadmapMd = `# Roadmap
+
+## Project Title
+My Project
+
+## Mission
+(Define the stable global prior and success definition here.)
+
+## Hard Constraints
+- Global direction should be stable.
+- Local execution should be adaptive via patches.
+- Every iteration must produce observable evidence.
+`;
+fs.writeFileSync(path.join(loopDir, 'roadmap.md'), roadmapMd);
+
+const activeTaskJson = {
+  "task_id": "",
+  "objective": "",
+  "status": "idle",
+  "assumptions": [],
+  "risks": [],
+  "success_criteria": [],
+  "next_action": "",
+  "local_patches": []
+};
+fs.writeFileSync(path.join(stateDir, 'active_task.json'), JSON.stringify(activeTaskJson, null, 2));
+
+const failureBankJson = {
+  "failures": []
+};
+fs.writeFileSync(path.join(stateDir, 'failure_bank.json'), JSON.stringify(failureBankJson, null, 2));
 
 const dispatchAgentSh = `#!/usr/bin/env bash
 set -euo pipefail
@@ -62,29 +87,31 @@ LAST_MESSAGE_FILE="\${DISPATCH_DIR}/\${MODE}_\${STAMP}_last_message.txt"
 PROMPT_FILE="\${DISPATCH_DIR}/\${MODE}_\${STAMP}_prompt.md"
 
 {
-  printf 'You are the AgentHUD %s agent for the pure-thread build.\n\n' "\${ROLE_LABEL}"
+  printf 'You are the %s agent for the reflective loop.\n\n' "\${ROLE_LABEL}"
   printf 'Workspace: %s\n' "\${WORKSPACE}"
   printf 'Your session id is %s.\n\n' "\${AGENT_SESSION_ID}"
-  printf 'Always read roadmap.md, tasks.json, .claude/plans/ACTIVE_PLAN.md, and recent .claude/plans/loloop/evolution-*.md before acting.\n'
-  printf 'Keep all AgentHUD-owned files inside %s.\n' "\${WORKSPACE}"
+  printf 'Always read .gemini-loop/roadmap.md (Global Prior), .gemini-loop/state/active_task.json (Local State), and .gemini-loop/state/failure_bank.json (Failure Memory).\n'
 
   if [[ "\${MODE}" == "optimize" ]]; then
     cat <<\'PROMPT'
-Mode: optimize
+Mode: optimize (Forward Pass)
 Instructions:
-1. Pick the smallest unblocked task.
-2. Implement exactly one verifiable slice.
-3. Update tasks.json and write an evolution note.
-4. Write .gemini-loop/state/implementation_report.json.
+1. Treat active_task.json as your current adapter state.
+2. Read any local_patches provided.
+3. Implement exactly one verifiable bounded slice based on active_task.json.
+4. If an error occurs, write a local patch or failure pattern to failure_bank.json.
+5. Write .gemini-loop/state/implementation_report.json detailing evidence and actual outcome.
 PROMPT
   else
     cat <<\'PROMPT'
-Mode: check
+Mode: check (Backward Signal)
 Instructions:
-1. Do not edit product/source implementation files.
-2. Inspect recent work for drift.
-3. Write concrete guidance and next micro-task.
-4. Write .gemini-loop/state/check_report.json.
+1. Do not edit product source implementation files.
+2. Inspect the latest implementation_report.json and the actual outcome.
+3. Contrast intended objective vs actual result.
+4. You MUST extract a reusable local patch (e.g. prompt_patch, scope_patch, verification_patch) and add it to active_task.json's local_patches array.
+5. Update active_task.json with the next bounded action.
+6. Write .gemini-loop/state/check_report.json with verdict.
 PROMPT
   fi
 } > "\${PROMPT_FILE}"
@@ -114,7 +141,7 @@ NODE
 fs.writeFileSync(path.join(scriptsDir, 'dispatch_agent.sh'), dispatchAgentSh);
 fs.chmodSync(path.join(scriptsDir, 'dispatch_agent.sh'), '0755');
 
-const promptMd = `You are the AgentHUD main scheduler loop.
+const promptMd = `You are the main scheduler loop.
 Workspace: \`${workspace}\`
 Scheduler session: \`${schedulerSessionId}\`
 
@@ -124,4 +151,4 @@ Delegated commands:
 `;
 
 fs.writeFileSync(path.join(loopDir, 'prompt.md'), promptMd);
-console.log("Gemini loop scaffolded in .gemini-loop/");
+console.log("Reflective Gemini loop scaffolded in .gemini-loop/");

@@ -1,0 +1,57 @@
+YOLO mode is enabled. All tool calls will be automatically approved.
+YOLO mode is enabled. All tool calls will be automatically approved.
+[ERROR] [IDEConnectionUtils] IDE fetch failed for http://127.0.0.1:37717/mcp TypeError: fetch failed
+    at Object.processResponse (file:///home/clashuser/.local/lib/node_modules/@google/gemini-cli/bundle/chunk-IWSCP2GY.js:194045:20)
+    at file:///home/clashuser/.local/lib/node_modules/@google/gemini-cli/bundle/chunk-IWSCP2GY.js:194426:23
+    at node:internal/process/task_queues:151:7
+    at AsyncResource.runInAsyncScope (node:async_hooks:214:14)
+    at AsyncResource.runMicrotask (node:internal/process/task_queues:148:8)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  [cause]: Error: connect ECONNREFUSED 127.0.0.1:37717
+      at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+    errno: -111,
+    code: 'ECONNREFUSED',
+    syscall: 'connect',
+    address: '127.0.0.1',
+    port: 37717
+  }
+}
+[ERROR] [IDEConnectionUtils] IDE fetch failed for http://127.0.0.1:41279/mcp TypeError: fetch failed
+    at Object.processResponse (file:///home/clashuser/.local/lib/node_modules/@google/gemini-cli/bundle/chunk-IWSCP2GY.js:194045:20)
+    at file:///home/clashuser/.local/lib/node_modules/@google/gemini-cli/bundle/chunk-IWSCP2GY.js:194426:23
+    at node:internal/process/task_queues:151:7
+    at AsyncResource.runInAsyncScope (node:async_hooks:214:14)
+    at AsyncResource.runMicrotask (node:internal/process/task_queues:148:8)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  [cause]: Error: connect ECONNREFUSED 127.0.0.1:41279
+      at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16) {
+    errno: -111,
+    code: 'ECONNREFUSED',
+    syscall: 'connect',
+    address: '127.0.0.1',
+    port: 41279
+  }
+}
+[ERROR] [IDEClient] Failed to connect to IDE companion extension in IDE. Please ensure the extension is running. To install the extension, run /ide install.
+I will begin by reading `GEMINI_ROADMAP.md` to confirm the current active task and determine the next implementation step.
+I'll examine the `renderThreadRow` function in `src/host/thread-page.js` to determine how to integrate the tick status badges into the thread list items.
+I'll review `src/host/providers/gemini.js` to see how I can modify `listGeminiThreads` to include tick summaries, enabling the display of status badges in the thread list.
+I'll update `src/host/providers/gemini.js` to include a `tickSummary` in the thread objects returned by `listThreads`, allowing the UI to display status badges for each Gemini thread.
+I'll refactor the `listGeminiThreads` function to use the `workspaceRoot` directly, making the `evolutionDir` path calculation cleaner and more robust.
+I've included `tickSummary` in the thread data. Now, I'll update the `renderThreadRow` function in `src/host/thread-page.js` to render the status badges.
+I'll implement a check for `thread.tickSummary` in the rendering logic, and if present, I'll display the status badges accordingly.
+I've successfully integrated the status badges into the thread row. Now, I'll verify the implementation by running the tests. I'll also add a specific test case to `src/host/thread-page.test.js` to confirm the badges are rendering as expected.
+I'll incorporate a test case for Gemini status badges into `src/host/thread-page.test.js` to ensure they're functioning correctly.
+I'll initiate the test run to confirm the implementation.
+I've confirmed that all tests passed, signifying the completion of `GEMINI-006`. I'll now proceed to update the task status and the `GEMINI_ROADMAP.md`.
+I'll proceed with updating the `GEMINI_ROADMAP.md` file.
+I'll proceed by creating `tasks/gemini/007-live-watcher.json`, which will serve as the task definition for the subsequent agent.
+I have completed **GEMINI-006 (Status Badges)**, enhancing the thread list UI to provide a quick summary of Gemini evolution results.
+
+**Key Changes:**
+- **`src/host/providers/gemini.js`**: Enhanced `listGeminiThreads` to asynchronously load evolution ticks for each log file and include a `tickSummary` (PASS/FAIL counts) in the returned thread metadata.
+- **`src/host/thread-page.js`**: Updated `renderThreadRow` to detect Gemini threads and display visual badges for PASS and FAIL counts using VS Code's testing theme colors.
+- **`src/host/thread-page.test.js`**: Added a new test case to verify that the Gemini status badges are correctly rendered in the HTML output.
+- **`GEMINI_ROADMAP.md`**: Marked `GEMINI-006` as completed and designated `GEMINI-007` (Live Watcher) as the next active task.
+
+All 14 unit test files passed successfully. The project is now ready for **GEMINI-007**, which will focus on real-time updates via a file-system watcher.
