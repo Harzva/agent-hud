@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "dispatch_id": "dispatch-20260419225133-check-AGHUD-019",
+  "task_id": "AGHUD-019",
+  "reviewed_dispatch_id": "dispatch-20260419131503-optimize-AGHUD-019",
+  "verdict": "revise",
+  "next_task_id": "AGHUD-019",
+  "must_fix": [
+    "Implement Claude cache-first cold hydration path in panel-view (summary cache read before background list refresh), matching Codex parity.",
+    "Add focused tests proving Claude cache hydration uses cached rows on cold load and degrades safely on cache read error.",
+    "Keep the next AGHUD-019 slice bounded to hydration only; defer list paging/virtualization to the following AGHUD-019 dispatch.",
+    "Include commit_hash for the optimize dispatch when a commit exists; otherwise include explicit no_commit_reason in the report."
+  ],
+  "guidance": "No new AGHUD-019 optimize report landed since dispatch-20260419131503-optimize-AGHUD-019, and AGHUD-019 acceptance remains incomplete. Next optimize slice should stay minimal: implement hydrateClaudeFromCache parity in panel-view with focused hydration tests only, then report commit discipline fields explicitly.",
+  "no_commit_reason": "Checker dispatch only updates planning/state artifacts; no product/source commit created in this check pass.",
+  "finished_at": "2026-04-19T22:52:13Z"
+}

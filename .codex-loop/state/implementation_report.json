@@ -1,0 +1,34 @@
+{
+  "dispatch_id": "dispatch-20260419131503-optimize-AGHUD-019",
+  "task_id": "AGHUD-019",
+  "status": "done",
+  "changed_files": [
+    "src/host/performance-budget.js",
+    "src/host/panel-view.js",
+    "src/host/performance-budget.test.js",
+    "tasks.json",
+    ".claude/plans/loloop/evolution-2026-04-19-agenthud-timeout-budget-guardrails.md",
+    ".codex-loop/state/implementation_report.json"
+  ],
+  "validation_commands": [
+    "node --check src/host/panel-view.js src/host/performance-budget.js src/host/performance-budget.test.js",
+    "node src/host/performance-budget.test.js",
+    "node -e 'JSON.parse(require(\"fs\").readFileSync(\"tasks.json\",\"utf8\")); console.log(\"tasks.json OK\")'"
+  ],
+  "validation_result": "pass",
+  "evidence_summary": "Implemented an AGHUD-019 hardening slice that enforces list/detail timeout budgets and preserves partial list/detail content with scoped errors when refresh/detail operations exceed host-side latency budgets.",
+  "finished_at": "2026-04-19T13:18:27Z",
+  "ui_acceptance_evidence": {
+    "visual_system": "No new visual primitives were added; timeout fallback uses existing status/error typography and surface language.",
+    "information_density": "On timeout, current thread rows/detail remain visible so density is preserved instead of collapsing to an empty state.",
+    "motion_and_interaction": "Interaction flow remains stable during delayed operations: loading transitions to scoped timeout feedback without resetting provider shell.",
+    "card_language": "Existing list/detail card treatment is retained; timeout feedback is injected as status/detail text rather than introducing divergent card styles.",
+    "responsive_layout": "Timeout behavior is host-side and applies consistently across sidebar/panel/editor surfaces without introducing overflow or layout branching.",
+    "evidence_artifacts": [
+      "src/host/performance-budget.js",
+      "src/host/panel-view.js",
+      "src/host/performance-budget.test.js",
+      ".claude/plans/loloop/evolution-2026-04-19-agenthud-timeout-budget-guardrails.md"
+    ]
+  }
+}

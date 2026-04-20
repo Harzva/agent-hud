@@ -1,0 +1,28 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "agenthud: verify-runtime",
+      "type": "shell",
+      "command": "node",
+      "args": [
+        "--check",
+        "extension.js",
+        "src/host/panel-view.js",
+        "src/host/thread-page.js",
+        "src/host/providers/codex.js",
+        "src/host/providers/claude.js"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "agenthud: run-tests",
+      "type": "shell",
+      "command": "node",
+      "args": [
+        "src/host/thread-page.test.js"
+      ],
+      "problemMatcher": []
+    }
+  ]
+}

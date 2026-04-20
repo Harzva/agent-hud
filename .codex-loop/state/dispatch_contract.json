@@ -1,0 +1,16 @@
+{
+  "dispatch_id": "dispatch-20260419232612-check-AGHUD-019",
+  "mode": "check",
+  "task_id": "AGHUD-019",
+  "owner_thread_id": "019da180-e9d0-7ee1-8d78-e4608f939741",
+  "acceptance_criteria": [
+    "Re-check latest AGHUD-019 implementation evidence and validation against roadmap scope.",
+    "Write dispatch-matching check_report with valid verdict/next_task_id and commit discipline fields.",
+    "Provide one minimal next handoff in check evolution note."
+  ],
+  "forbidden_paths": [
+    "/home/clashuser/hzh/work_bo/codex_manager/vscode-extension/recovered",
+    "/home/clashuser/hzh/work_bo/codex_manager"
+  ],
+  "created_at": "2026-04-19T23:26:12Z"
+}

@@ -1,0 +1,159 @@
+{
+  "name": "agent-hud",
+  "displayName": "AgentHUD",
+  "description": "Inspect local Codex and Claude agent threads inside VS Code.",
+  "version": "0.0.1",
+  "publisher": "agenthud",
+  "license": "MIT",
+  "preview": true,
+  "engines": {
+    "vscode": "^1.90.0",
+    "node": ">=20"
+  },
+  "extensionKind": [
+    "workspace"
+  ],
+  "categories": [
+    "Visualization",
+    "Other"
+  ],
+  "keywords": [
+    "agenthud",
+    "codex",
+    "claude",
+    "threads",
+    "agent"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/google/gemini-cli"
+  },
+  "scripts": {
+    "audit:stale-refs": "node scripts/audit/check-stale-references.js",
+    "test": "node scripts/ci/run-unit-tests.js",
+    "verify": "npm run audit:stale-refs && npm test"
+  },
+  "activationEvents": [
+    "onCommand:agenthud.open",
+    "onCommand:agenthud.refresh",
+    "onCommand:agenthud.revealProvider",
+    "onCommand:agenthud.quickSwitch",
+    "onView:agenthud.threads",
+    "onView:agenthud.panel"
+  ],
+  "main": "./extension.js",
+  "contributes": {
+    "configuration": {
+      "title": "AgentHUD",
+      "properties": {
+        "agenthud.defaultProvider": {
+          "type": "string",
+          "enum": [
+            "codex",
+            "claude"
+          ],
+          "default": "codex",
+          "description": "Provider tab selected when AgentHUD opens."
+        },
+        "agenthud.defaultSurface": {
+          "type": "string",
+          "enum": [
+            "editor",
+            "sidebar",
+            "panel"
+          ],
+          "default": "editor",
+          "description": "Preferred VS Code surface for opening AgentHUD."
+        },
+        "agenthud.codexListParseConcurrency": {
+          "type": "integer",
+          "default": 0,
+          "minimum": 0,
+          "maximum": 32,
+          "markdownDescription": "How many Codex rollout files to parse in parallel when refreshing the thread list. `0` = automatic (bounded by CPU count, typically 2–8). `1` = serial. Larger values can speed up big `~/.codex/sessions` trees on fast disks but increase peak memory."
+        },
+        "agenthud.codexListScanMaxRollouts": {
+          "type": "integer",
+          "default": 0,
+          "minimum": 0,
+          "maximum": 50000,
+          "markdownDescription": "Max Codex rollout files to parse per list refresh (newest first). `0` = use the extension default cap. Set higher if the status line warns that the rollout scan was limited."
+        },
+        "agenthud.claudeListScanMaxSources": {
+          "type": "integer",
+          "default": 0,
+          "minimum": 0,
+          "maximum": 50000,
+          "markdownDescription": "Max Claude `session.jsonl` sources to fully index per refresh (newest first). `0` = extension default. Tail sessions may still appear if they are already in the parse cache."
+        },
+        "agenthud.summaryCacheMaxSummaries": {
+          "type": "integer",
+          "default": 0,
+          "minimum": 0,
+          "maximum": 50000,
+          "markdownDescription": "Max Codex thread summaries written to global summary cache. `0` = extension default. Lower this if cache writes should stay small; the status line warns when rows are omitted."
+        },
+        "agenthud.codexDetailMaxRolloutAttempts": {
+          "type": "integer",
+          "default": 0,
+          "minimum": 0,
+          "maximum": 50000,
+          "markdownDescription": "When opening Codex thread detail without a usable list `sourcePath`, max rollout files to parse (newest first). `0` = built-in default. Selecting a thread from the list usually opens detail via `sourcePath` and skips this scan."
+        }
+      }
+    },
+    "commands": [
+      {
+        "command": "agenthud.open",
+        "title": "AgentHUD: Open"
+      },
+      {
+        "command": "agenthud.refresh",
+        "title": "AgentHUD: Refresh"
+      },
+      {
+        "command": "agenthud.revealProvider",
+        "title": "AgentHUD: Reveal Provider"
+      },
+      {
+        "command": "agenthud.quickSwitch",
+        "title": "AgentHUD: Quick Switch"
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "agenthud",
+          "title": "AgentHUD",
+          "icon": "media/agenthud.svg"
+        }
+      ],
+      "panel": [
+        {
+          "id": "agenthudPanel",
+          "title": "AgentHUD",
+          "icon": "media/agenthud.svg"
+        }
+      ]
+    },
+    "views": {
+      "agenthud": [
+        {
+          "type": "webview",
+          "id": "agenthud.threads",
+          "name": "Threads"
+        }
+      ],
+      "agenthudPanel": [
+        {
+          "type": "webview",
+          "id": "agenthud.panel",
+          "name": "Threads"
+        }
+      ]
+    }
+  },
+  "dependencies": {
+    "@google/gemini-cli": "^0.38.2"
+  }
+}

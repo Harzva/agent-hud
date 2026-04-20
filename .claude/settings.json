@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node -e \"require\\('./scripts/perf/measure-large-history-baseline.js'\\)\")",
+      "Bash(node scripts/perf/measure-large-history-baseline.js --scales=10 --cleanup)"
+    ]
+  }
+}

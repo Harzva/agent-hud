@@ -1,0 +1,11 @@
+node_modules/
+.codex-loop/state/logs/
+.codex-loop/state/dispatch_logs/
+.codex-loop/state/tick.lock
+.codex-loop/state/daemon.pid
+.codex-loop/state/daemon_launcher.json
+.vscode-test/
+out/
+*.vsix
+.DS_Store
+.env

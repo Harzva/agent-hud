@@ -1,0 +1,87 @@
+{
+  "run_id": "agenthud-parallel-aggregation-20260419-153508",
+  "aggregated_at": "2026-04-19T15:35:08Z",
+  "inputs": [
+    "/home/clashuser/hzh/work_bo/agent_ui/agent_hud/.codex-loop/state/parallel-reports/AGHUD-021-agent-a.json",
+    "/home/clashuser/hzh/work_bo/agent_ui/agent_hud/.codex-loop/state/parallel-reports/AGHUD-035-agent-b.json",
+    "/home/clashuser/hzh/work_bo/agent_ui/agent_hud/.codex-loop/state/parallel-reports/AGHUD-030-agent-c.json",
+    "/home/clashuser/hzh/work_bo/agent_ui/agent_hud/.codex-loop/state/parallel-reports/AGHUD-029-agent-d.json"
+  ],
+  "per_task_result": [
+    {
+      "task_id": "AGHUD-021",
+      "agent": "Agent-A",
+      "decision": "completed",
+      "reason": "Report valid; status done; validation_result documents tasks.json parse and six smoke scripts exit 0.",
+      "validation_summary": "tasks.json parses; all six smoke test scripts exited with code 0 (2026-04-19)."
+    },
+    {
+      "task_id": "AGHUD-035",
+      "agent": "agent-b",
+      "decision": "completed",
+      "reason": "Report valid; status done; validation_result explicitly pass.",
+      "validation_summary": "pass (exit 0 for all five)"
+    },
+    {
+      "task_id": "AGHUD-030",
+      "agent": "agent-c",
+      "decision": "completed",
+      "reason": "Report valid; status done; validation_result explicitly pass with synthetic and real runs.",
+      "validation_summary": "pass (exit 0): synthetic 1-thread + cleanup; real Codex (~/.codex/sessions) and real Claude (~/.claude/projects) runs completed all hotspot phases on dev machine"
+    },
+    {
+      "task_id": "AGHUD-029",
+      "agent": "agent-d",
+      "decision": "completed",
+      "reason": "Report valid; status done; validation_result explicitly pass for node tests.",
+      "validation_summary": "pass: both node tests exit 0 (message-protocol smoke OK; thread-page smoke OK; error boundary rendering OK). VS Code CLI available: code --version printed 3.1.15. No headless automated webview E2E in this repo."
+    }
+  ],
+  "tasks_updated": [
+    {
+      "task_id": "AGHUD-021",
+      "fields": [
+        "tasks[].evidence (appended one Parallel aggregation line from report evidence_summary)"
+      ],
+      "previous_status": "completed",
+      "new_status": "completed"
+    },
+    {
+      "task_id": "AGHUD-035",
+      "fields": [
+        "status",
+        "evidence (new array)"
+      ],
+      "previous_status": "planned",
+      "new_status": "completed"
+    },
+    {
+      "task_id": "AGHUD-030",
+      "fields": [
+        "status",
+        "evidence (new array)"
+      ],
+      "previous_status": "planned",
+      "new_status": "completed"
+    },
+    {
+      "task_id": "AGHUD-029",
+      "fields": [
+        "status",
+        "evidence (new array)"
+      ],
+      "previous_status": "planned",
+      "new_status": "completed"
+    }
+  ],
+  "root_metadata": {
+    "updated_at": "2026-04-19"
+  },
+  "tasks_blocked": [],
+  "evolution_files_read_optional": [
+    "/home/clashuser/hzh/work_bo/agent_ui/agent_hud/.claude/plans/loloop/evolution-2026-04-19-agenthud-aghud-021-agent-a.md",
+    "/home/clashuser/hzh/work_bo/agent_ui/agent_hud/.claude/plans/loloop/evolution-2026-04-19-agenthud-aghud-035-agent-b.md",
+    "/home/clashuser/hzh/work_bo/agent_ui/agent_hud/.claude/plans/loloop/evolution-2026-04-19-agenthud-aghud-030-agent-c.md",
+    "/home/clashuser/hzh/work_bo/agent_ui/agent_hud/.claude/plans/loloop/evolution-2026-04-19-agenthud-aghud-029-agent-d.md"
+  ]
+}

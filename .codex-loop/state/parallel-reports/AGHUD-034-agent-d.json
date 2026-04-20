@@ -1,0 +1,25 @@
+{
+  "task_id": "AGHUD-034",
+  "agent": "Agent-D",
+  "status": "done",
+  "changed_files": [
+    "src/host/thread-page.js",
+    "src/host/panel-view.js",
+    "src/host/message-protocol.js",
+    "src/host/ui-state.js",
+    "src/host/thread-page.test.js",
+    "src/host/message-protocol.test.js",
+    "src/host/ui-state.test.js",
+    ".claude/plans/loloop/evolution-2026-04-19-agenthud-aghud-034-agent-d.md",
+    ".codex-loop/state/parallel-reports/AGHUD-034-agent-d.json"
+  ],
+  "validation_commands": [
+    "cd /home/clashuser/hzh/work_bo/agent_ui/agent_hud && node src/host/thread-page.test.js",
+    "cd /home/clashuser/hzh/work_bo/agent_ui/agent_hud && node src/host/message-protocol.test.js",
+    "cd /home/clashuser/hzh/work_bo/agent_ui/agent_hud && node src/host/ui-state.test.js"
+  ],
+  "validation_result": "All three test scripts exited with code 0.",
+  "evidence_summary": "sanitizeDeepLinkThreadId on all panel threadId paths: selectCodex/Claude, copy id/deep link, open native; applyDeepLink uses select* sanitization. serializeAgentHudDeepLink + hash CRLF strip unchanged.",
+  "risks": "Legitimate thread IDs containing rare control chars are stripped; natural UUID/session ids unaffected. Extremely long threadId still lengthens URL (no truncation by design).",
+  "finished_at": "2026-04-19T15:53:14Z"
+}

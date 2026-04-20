@@ -1,0 +1,27 @@
+{
+  "task_id": "AGHUD-019",
+  "agent": "agent-a",
+  "status": "done",
+  "changed_files": [
+    "src/host/performance-budget.js",
+    "src/host/performance-budget.test.js",
+    "src/host/providers/codex.js",
+    "src/host/providers/codex.test.js",
+    "src/host/providers/claude.js",
+    "src/host/providers/claude.test.js",
+    "src/host/providers/claude-cache.test.js",
+    "src/host/summary-cache.js",
+    ".claude/plans/loloop/evolution-2026-04-19-agenthud-aghud-019-agent-a.md",
+    ".codex-loop/state/parallel-reports/AGHUD-019-agent-a.json"
+  ],
+  "validation_commands": [
+    "cd /home/clashuser/hzh/work_bo/agent_ui/agent_hud && node src/host/performance-budget.test.js",
+    "cd /home/clashuser/hzh/work_bo/agent_ui/agent_hud && node src/host/providers/codex.test.js",
+    "cd /home/clashuser/hzh/work_bo/agent_ui/agent_hud && node src/host/providers/claude.test.js",
+    "cd /home/clashuser/hzh/work_bo/agent_ui/agent_hud && node src/host/providers/claude-cache.test.js"
+  ],
+  "validation_result": "pass (exit 0) for all four test scripts",
+  "evidence_summary": "Scan caps default to 2500 for Codex rollouts, Claude sources, and summary-cache rows. Claude tail uses disk cache reuse so lowering cap does not erase cached entries. Codex detail still uses full findRolloutFiles.",
+  "risks": "Threads beyond Codex scan cap or uncached Claude tail sources disappear from list until cap/cache allows; summary-cache truncation may hide older rows in cold-read cache. Constants are not yet VS Code settings (panel-view out of scope).",
+  "finished_at": "2026-04-19T15:53:17Z"
+}

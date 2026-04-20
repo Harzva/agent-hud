@@ -1,0 +1,11 @@
+{"type":"system","timestamp":"2026-04-19T10:00:00.000Z","cwd":"/home/user/variant/project","project_label":"variant-project","message":{"content":"Session started."}}
+{"type":"user","timestamp":"2026-04-19T10:00:01.000Z","message":{"content":"Summarize current transcript."}}
+{"type":"assistant","timestamp":"2026-04-19T10:00:02.000Z","version":"claude-sonnet-4-20260401","message":{"content":[{"type":"text","text":"Running search."},{"type":"tool_use","name":"glob"}]}}
+{"type":"tool_result","timestamp":"2026-04-19T10:00:03.000Z","result":{"text":"Matched 4 files"}}
+{"type":"assistant","timestamp":"2026-04-19T10:00:04.000Z","message":{"content":[{"type":"tool_result","text":"Embedded tool block output"},{"type":"text","text":"Done."}]}}
+{"type":"permission-mode","timestamp":"2026-04-19T10:00:05.000Z","message":{"content":"acceptEdits"}}
+{"type":"file-history-snapshot","timestamp":"2026-04-19T10:00:06.000Z","files":["src/host/providers/claude.js"]}
+{"type":"last-prompt","timestamp":"2026-04-19T10:00:07.000Z","prompt":"Summarize current transcript."}
+{"type":"snapshot","timestamp":"2026-04-19T10:00:08.000Z","state":{"step":"after-tools"}}
+{"type":"sidechain","timestamp":"2026-04-19T10:00:09.000Z","message":{"content":"background branch"}}
+{

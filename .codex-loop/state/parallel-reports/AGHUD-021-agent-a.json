@@ -1,0 +1,32 @@
+{
+  "task_id": "AGHUD-021",
+  "agent": "Agent-A",
+  "status": "done",
+  "changed_files": [
+    "tasks.json",
+    "src/host/thread-page.test.js",
+    "src/host/message-protocol.test.js",
+    "src/host/provider-contract.test.js",
+    "src/host/providers/codex.test.js",
+    "src/host/providers/claude.test.js",
+    "src/host/providers/claude-parser.test.js",
+    "test/fixtures/codex/sessions/2026/04/19/rollout-2026-04-19T00-00-00-00000000-0000-4000-8000-000000000000.jsonl",
+    "test/fixtures/codex/sessions/2026/04/19/rollout-malformed.jsonl",
+    "test/fixtures/claude/projects/-home-user-error-project/session-error.jsonl",
+    "test/fixtures/claude/projects/-home-user-empty-project/session-empty.jsonl",
+    ".claude/plans/loloop/evolution-2026-04-19-agenthud-aghud-021-agent-a.md",
+    ".codex-loop/state/parallel-reports/AGHUD-021-agent-a.json"
+  ],
+  "validation_commands": [
+    "cd /home/clashuser/hzh/work_bo/agent_ui/agent_hud && node src/host/thread-page.test.js",
+    "cd /home/clashuser/hzh/work_bo/agent_ui/agent_hud && node src/host/message-protocol.test.js",
+    "cd /home/clashuser/hzh/work_bo/agent_ui/agent_hud && node src/host/provider-contract.test.js",
+    "cd /home/clashuser/hzh/work_bo/agent_ui/agent_hud && node src/host/providers/codex.test.js",
+    "cd /home/clashuser/hzh/work_bo/agent_ui/agent_hud && node src/host/providers/claude.test.js",
+    "cd /home/clashuser/hzh/work_bo/agent_ui/agent_hud && node src/host/providers/claude-parser.test.js"
+  ],
+  "validation_result": "tasks.json parses; all six smoke test scripts exited with code 0 (2026-04-19).",
+  "evidence_summary": "Expanded smoke tests for thread page rendering (empty/loading/errors, provider switch, filters), assertPureThreadPageShell (provider-only tabs, no board/team/loop/insight markers), message-protocol normalization (including dismiss/retry and full WEBVIEW_MESSAGE_TYPES sweep), provider-contract validators, Codex adapter (empty dirs, malformed/read errors, future now => idle), Claude discovery/parser (empty/error fixtures, list/detail edge cases). tasks.json AGHUD-021 marked completed with evidence. No production source files under blacklist were modified.",
+  "risks": "Tests are coupled to fixture paths and current message-protocol enum; upstream changes to exports or session formats may require fixture/test updates.",
+  "finished_at": "2026-04-19T15:23:42Z"
+}

@@ -1,0 +1,6 @@
+{"timestamp":"2026-04-19T14:00:00.000Z","type":"session_meta","payload":{"id":"019dbbbb-bbbb-4bbb-bbbb-bbbbbbbbbbbb","timestamp":"2026-04-19T14:00:00.000Z","source":"cli","cwd":"/tmp/codex-drift","model":"gpt-5.4"},"version":"3.1"}
+{"timestamp":"2026-04-19T14:00:01.000Z","type":"response_item","payload":{"type":"message","role":"user","content":[{"type":"input_text","text":"Test codex drift."}]}}
+{"timestamp":"2026-04-19T14:00:02.000Z","type":"response_item","payload":{"type":"message","role":"assistant","content":[{"type":"output_text","text":"Drift test ok."}]}}
+{"timestamp":"2026-04-19T14:00:03.000Z","type":"custom_event","payload":{"msg":"unknown codex event"}}
+{"timestamp":"2026-04-19T14:00:04.000Z","type":"response_item","payload":{"type":"unknown_payload","data":"falls through"}}
+{"timestamp":"2026-04-19T14:00:05.000Z","type":"event_msg","payload":{"type":"token_count"}}

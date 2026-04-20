@@ -1,0 +1,24 @@
+Tick executed with one delegated action, and it failed again due to checker-thread usage limit.
+
+What I did this tick:
+
+- Completed ordered reads (1–10).
+- Wrote one dispatch contract:
+  - `dispatch_id`: `dispatch-20260419232612-check-AGHUD-019`
+  - `mode`: `check`
+  - `task_id`: `AGHUD-019`
+  - file: [dispatch_contract.json](/home/clashuser/hzh/work_bo/agent_ui/agent_hud/.codex-loop/state/dispatch_contract.json)
+- Ran exactly one delegated action:
+  - `.codex-loop/scripts/dispatch_agent.sh check`
+
+Failure handling completed:
+
+- Updated [last_dispatch.json](/home/clashuser/hzh/work_bo/agent_ui/agent_hud/.codex-loop/state/last_dispatch.json) with:
+  - `returncode: 90`
+  - `validation_failures`: `check_report.dispatch_id_mismatch`, `checker_usage_limit`
+  - `recovery_action`: default next dispatch to `check`, retry after usage reset, require dispatch-aligned `check_report` before optimize
+- Added blocker/guidance evolution note:
+  - [evolution-2026-04-20-agenthud-check-aghud-019-dispatch-232612-failure.md](/home/clashuser/hzh/work_bo/agent_ui/agent_hud/.claude/plans/loloop/evolution-2026-04-20-agenthud-check-aghud-019-dispatch-232612-failure.md)
+
+Next step:
+1. Retry one `check` dispatch after checker-thread quota resets; do not allow optimize until a dispatch-aligned `check_report` is produced with valid verdict fields.

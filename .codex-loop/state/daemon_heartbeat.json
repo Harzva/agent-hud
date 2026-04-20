@@ -1,0 +1,10 @@
+{
+  "pid": 1203451,
+  "interval_minutes": 15.0,
+  "max_ticks": null,
+  "completed_ticks": 38,
+  "remaining_ticks": null,
+  "stopped_at": "2026-04-20T02:24:59.141963+00:00",
+  "phase": "stopped",
+  "stop_reason": ""
+}

@@ -1,0 +1,8 @@
+# Bump GitHub Actions only (no npm deps in this repo). Low-frequency to limit PR noise.
+version: 2
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    open-pull-requests-limit: 3

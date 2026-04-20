@@ -1,0 +1,7 @@
+{"type":"user","message":{"role":"user","content":[{"type":"text","text":"Test drift diagnostics."}]},"timestamp":"2026-04-19T12:00:00.000Z","version":"2.0","cwd":"/home/user/drift/project"}
+{"type":"assistant","message":{"role":"assistant","content":[{"type":"text","text":"I can help with that."}]},"timestamp":"2026-04-19T12:00:01.000Z"}
+{"type":"unknown_event","data":"orphan payload","timestamp":"2026-04-19T12:00:02.000Z"}
+{"type":"custom_notification","payload":"new feature","timestamp":"2026-04-19T12:00:03.000Z"}
+{"type":"permission-mode","data":"allow","timestamp":"2026-04-19T12:00:04.000Z"}
+{"type":"tool_result","timestamp":"2026-04-19T12:00:05.000Z"}
+{"type":"yet_another_type","info":"more unknown","timestamp":"2026-04-19T12:00:06.000Z"}

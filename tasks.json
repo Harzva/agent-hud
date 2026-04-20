@@ -1,0 +1,1726 @@
+{
+  "schema_version": 1,
+  "project": "agenthud-pure-thread",
+  "roadmap": "./roadmap.md",
+  "created_at": "2026-04-18",
+  "updated_at": "2026-04-19",
+  "principles": [
+    "Keep only Thread-page functionality.",
+    "Treat Codex and Claude as provider tabs.",
+    "Use one provider-neutral ThreadPage with provider-specific adapters.",
+    "Avoid board, loop, team, mailbox, and insights features.",
+    "Prefer local-first indexing and tolerant parsers over unofficial provider internals.",
+    "Do not require Python, FastAPI, a local HTTP port, or user-managed dependency installation.",
+    "Optimize for immediate first paint, cached summaries, fast jumps, and isolated provider failures.",
+    "Store AgentHUD-owned state as rebuildable JSON with schema versions.",
+    "Keep provider capabilities explicit so unsupported actions never appear as broken buttons."
+  ],
+  "milestones": [
+    {
+      "id": "M0",
+      "title": "Extraction Decision",
+      "goal": "Choose the AgentHUD package boundary and preserve the current product while planning the clean fork.",
+      "task_ids": [
+        "AGHUD-001",
+        "AGHUD-002",
+        "AGHUD-003",
+        "AGHUD-023",
+        "AGHUD-024"
+      ]
+    },
+    {
+      "id": "M1",
+      "title": "Pure Codex Thread Page",
+      "goal": "Ship a clean Codex-only Thread page without board, loop, team, or insights.",
+      "task_ids": [
+        "AGHUD-004",
+        "AGHUD-005",
+        "AGHUD-006",
+        "AGHUD-007",
+        "AGHUD-025"
+      ]
+    },
+    {
+      "id": "M2",
+      "title": "Provider Contract",
+      "goal": "Introduce provider-neutral thread and detail contracts.",
+      "task_ids": [
+        "AGHUD-008",
+        "AGHUD-009",
+        "AGHUD-010",
+        "AGHUD-026"
+      ]
+    },
+    {
+      "id": "M3",
+      "title": "Claude Local Indexer",
+      "goal": "Read Claude transcript JSONL into the provider contract.",
+      "task_ids": [
+        "AGHUD-011",
+        "AGHUD-012",
+        "AGHUD-013",
+        "AGHUD-014",
+        "AGHUD-015"
+      ]
+    },
+    {
+      "id": "M4",
+      "title": "Unified Provider Tabs",
+      "goal": "Expose Codex and Claude as tabs of the same Thread page.",
+      "task_ids": [
+        "AGHUD-016",
+        "AGHUD-017",
+        "AGHUD-018",
+        "AGHUD-027",
+        "AGHUD-028"
+      ]
+    },
+    {
+      "id": "M5",
+      "title": "Hardening",
+      "goal": "Make indexing, refresh, and UI behavior reliable on large histories.",
+      "task_ids": [
+        "AGHUD-019",
+        "AGHUD-020",
+        "AGHUD-021",
+        "AGHUD-022",
+        "AGHUD-029",
+        "AGHUD-030"
+      ]
+    },
+    {
+      "id": "M6",
+      "title": "Polish and Extensibility",
+      "goal": "Add search, source reveal, privacy, provider health, keyboard flow, and future-provider polish without expanding into board/team mode.",
+      "task_ids": [
+        "AGHUD-031",
+        "AGHUD-032",
+        "AGHUD-033",
+        "AGHUD-034",
+        "AGHUD-035",
+        "AGHUD-036"
+      ]
+    }
+  ],
+  "tasks": [
+    {
+      "id": "AGHUD-001",
+      "milestone": "M0",
+      "title": "Choose AgentHUD package boundary",
+      "status": "completed",
+      "priority": "P0",
+      "type": "architecture",
+      "description": "Decide whether AgentHUD is a new extension package, a branch, or an isolated subtree inside this repo.",
+      "source_refs": [
+        "package.json",
+        "extension.js",
+        "src/panel.js"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Package identity and directory boundary are documented.",
+        "The current Codex-Managed-Agent feature surface is not broken.",
+        "The chosen boundary makes board, loop, team, and insights optional to omit.",
+        "The chosen boundary supports a single VSIX install with no Python service."
+      ],
+      "evidence": [
+        "Created docs/agenthud/package-boundary.md documenting AgentHUD as an isolated VS Code extension package rooted at /home/clashuser/hzh/work_bo/agent_ui/agent_hud.",
+        "Documented recovered Codex-Managed-Agent source as read-only reference, preserving the current feature surface.",
+        "Documented zero-service runtime: VS Code extension host, webview postMessage, local Node file indexers, and rebuildable JSON cache; no Python/FastAPI/local HTTP/native sqlite/post-install dependency requirement.",
+        "Documented pure Thread-page feature boundary and explicitly omitted board, loop board, team, mailbox, coordination, usage insights, and vibe dashboards."
+      ],
+      "owner_thread": "implementation",
+      "review_required": true,
+      "max_scope_files": 8,
+      "exit_criteria": {
+        "require_acceptance_criteria": true,
+        "require_evidence": true,
+        "require_validation": true,
+        "require_check_report_pass": true
+      }
+    },
+    {
+      "id": "AGHUD-002",
+      "milestone": "M0",
+      "title": "Define pure feature allowlist",
+      "status": "completed",
+      "priority": "P0",
+      "type": "product",
+      "description": "Write the exact keep/remove list for pure AgentHUD so implementation agents do not re-add original dashboard features.",
+      "source_refs": [
+        "docs/agenthud/roadmap.md",
+        "src/webview-template.js"
+      ],
+      "dependencies": [
+        "AGHUD-001"
+      ],
+      "acceptance_criteria": [
+        "Thread list, detail, history, search, filters, provider tabs, and native-open actions are explicitly in scope.",
+        "Board, loop, team, mailbox, insights, and coordination are explicitly out of scope.",
+        "Destructive actions are separately gated by provider capability.",
+        "Fast first paint, fast jumps, and isolated provider errors are explicitly in scope."
+      ],
+      "evidence": [
+        "Created docs/agenthud/feature-allowlist.md documenting the allowed provider-tabbed Thread page surface: thread list, detail, history, search, filters, provider tabs, quick switch, source reveal, and native-open actions.",
+        "Documented out-of-scope feature families including board, loop board, team, mailbox, handoff/coordination, usage reports, insights dashboard, topic maps, word clouds, vibe advice, memory cards, and service start/probe UI.",
+        "Documented destructive and mutating actions as provider-capability gated: renameThread, archiveThread, restoreThread, and future delete-like actions.",
+        "Documented fast first paint, cache-first hydration, fast jumps, isolated provider failures, background refresh, and large-history safety as required behavior."
+      ],
+      "owner_thread": "implementation",
+      "review_required": true,
+      "max_scope_files": 12,
+      "exit_criteria": {
+        "require_acceptance_criteria": true,
+        "require_evidence": true,
+        "require_validation": true,
+        "require_check_report_pass": true
+      }
+    },
+    {
+      "id": "AGHUD-003",
+      "milestone": "M0",
+      "title": "Map current code to removable modules",
+      "status": "completed",
+      "priority": "P0",
+      "type": "analysis",
+      "description": "Produce a removal map for modules and message types that belong to board, loop, team, mailbox, insights, and memory cards.",
+      "source_refs": [
+        "src/webview-template.js",
+        "src/webview/board.js",
+        "src/webview/insights.js",
+        "src/host/lifecycle.js",
+        "src/host/team-coordination.js",
+        "src/host/auto-continue.js",
+        "src/host/thread-insight.js"
+      ],
+      "dependencies": [
+        "AGHUD-002"
+      ],
+      "acceptance_criteria": [
+        "Every removed feature family has a file/function/message-type list.",
+        "Thread-page dependencies are separated from removable feature dependencies.",
+        "No source file is edited during this analysis task."
+      ],
+      "evidence": [
+        "Created docs/agenthud/removal-map.md mapping recovered board, loop/auto-loop, team/mailbox/coordination, insights/usage/vibe, memory cards, and service/dashboard feature families to excluded files, functions, UI elements, and message types.",
+        "Separated Thread-page concepts that may be reimplemented, including drawer shape, thread explorer layout, Codex native open, source reveal, provider-scoped routing, and local Node indexer data-source references.",
+        "Documented implementation rules for future copying: remove dashboard imports/modules, replace dashboard payload assumptions with provider contract objects, keep native/source actions capability-gated, and validate forbidden names.",
+        "Recovered source extension was used as read-only reference only; no source files were edited."
+      ],
+      "owner_thread": "implementation",
+      "review_required": true,
+      "max_scope_files": 8,
+      "exit_criteria": {
+        "require_acceptance_criteria": true,
+        "require_evidence": true,
+        "require_validation": true,
+        "require_check_report_pass": true
+      }
+    },
+    {
+      "id": "AGHUD-004",
+      "milestone": "M1",
+      "title": "Create minimal AgentHUD VS Code contribution set",
+      "status": "completed",
+      "priority": "P0",
+      "type": "implementation",
+      "description": "Define the minimal package commands, views, configuration, and activation events for opening AgentHUD without any start-server workflow.",
+      "source_refs": [
+        "package.json",
+        "src/host/panel-view.js"
+      ],
+      "dependencies": [
+        "AGHUD-001",
+        "AGHUD-024"
+      ],
+      "acceptance_criteria": [
+        "Only AgentHUD open, refresh, reveal provider, and quick-switch commands remain.",
+        "The webview opens directly to the Thread page.",
+        "No board/team/loop/insights commands are contributed.",
+        "No command implies Python, FastAPI, or a local HTTP server."
+      ],
+      "evidence": [
+        "Created package.json for the standalone AgentHUD VS Code extension with only four contributed commands: agenthud.open, agenthud.refresh, agenthud.revealProvider, and agenthud.quickSwitch.",
+        "Contributed only AgentHUD thread webview surfaces: activity bar view agenthud.threads, panel view agenthud.panel, and editor webview panel opened by agenthud.open.",
+        "Added extension.js as the minimal activation entry and src/host/panel-view.js as the minimal host runtime for opening a Thread-page shell with Codex and Claude provider tabs.",
+        "The opened webview renders AgentHUD Threads directly with provider tabs, search/filter placeholders, a selected-detail area, and refresh wiring; no landing page or dashboard surface is introduced.",
+        "No dependencies, scripts, service startup commands, Python/FastAPI/local HTTP settings, or board/team/loop/insight commands are present in the package contribution set.",
+        "Added media/agenthud.svg as a bundled static view-container icon asset."
+      ],
+      "owner_thread": "implementation",
+      "review_required": true,
+      "max_scope_files": 12,
+      "exit_criteria": {
+        "require_acceptance_criteria": true,
+        "require_evidence": true,
+        "require_validation": true,
+        "require_check_report_pass": true
+      }
+    },
+    {
+      "id": "AGHUD-005",
+      "milestone": "M1",
+      "title": "Build Codex Node thread data adapter",
+      "status": "completed",
+      "priority": "P0",
+      "type": "implementation",
+      "description": "Implement a Codex adapter in the VS Code extension host that reads local Codex session/rollout files directly and conforms to the provider contract.",
+      "source_refs": [
+        "src/host/providers/codex.js",
+        "src/host/providers/codex.test.js",
+        "test/fixtures/codex/sessions",
+        "~/.codex/sessions",
+        "/home/clashuser/.codex",
+        "/home/clashuser/.claude"
+      ],
+      "dependencies": [
+        "AGHUD-004"
+      ],
+      "acceptance_criteria": [
+        "Codex list fetch returns normalized thread rows without calling FastAPI.",
+        "Codex detail fetch returns normalized messages and recent events from local files.",
+        "Existing Codex open editor/sidebar behavior remains possible through the adapter."
+      ],
+      "evidence": [
+        "Added src/host/providers/codex.js implementing a pure Node Codex provider adapter that discovers rollout-*.jsonl files under a configurable sessions directory, defaulting to ~/.codex/sessions.",
+        "listThreads returns normalized Codex thread rows with provider, id, title, cwd, status, createdAt, updatedAt, model, sourcePath, messageCount, and preview without FastAPI, HTTP, Python, native sqlite, or package dependencies.",
+        "getThreadDetail returns normalized messages, recent events, provider-local parse/read errors, source metadata, and capability flags with openNative true and unsupported mutating/live capabilities false.",
+        "Missing or non-directory Codex sessions paths return an empty provider result instead of throwing through the caller.",
+        "Malformed JSONL lines are skipped and reported as provider-local source errors without failing the whole thread.",
+        "Added sanitized fixture coverage in test/fixtures/codex/sessions and src/host/providers/codex.test.js for list/detail normalization, capabilities, malformed-line reporting, and missing thread lookup."
+      ],
+      "owner_thread": "implementation",
+      "review_required": true,
+      "max_scope_files": 12,
+      "exit_criteria": {
+        "require_acceptance_criteria": true,
+        "require_evidence": true,
+        "require_validation": true,
+        "require_check_report_pass": true
+      }
+    },
+    {
+      "id": "AGHUD-006",
+      "milestone": "M1",
+      "title": "Build pure Codex ThreadPage",
+      "status": "completed",
+      "priority": "P0",
+      "type": "implementation",
+      "description": "Render a clean Codex Thread page using the existing thread explorer and drawer concepts but without feature-heavy dashboard chrome.",
+      "source_refs": [
+        "src/host/panel-view.js",
+        "src/host/thread-page.js",
+        "src/host/thread-page.test.js",
+        "src/host/providers/codex.js",
+        "roadmap.md"
+      ],
+      "dependencies": [
+        "AGHUD-005"
+      ],
+      "acceptance_criteria": [
+        "Page includes search, sort, status filter, list, selected detail, messages, and recent events.",
+        "No board tab, attach board, attach loop, team, handoff, memory card, or insight UI appears.",
+        "Selecting a thread loads detail without requiring overview/dashboard state.",
+        "Initial Codex list data renders from the Node adapter; cache-first hydration remains deferred to AGHUD-025."
+      ],
+      "evidence": [
+        "Refactored src/host/panel-view.js to create a Codex provider instance, load Codex list data from src/host/providers/codex.js, select a default or clicked thread, and load selected detail through the adapter.",
+        "Added src/host/thread-page.js as the pure ThreadPage renderer for provider tabs, Codex search, status filter, sort control, thread list, selected detail, normalized conversation messages, and recent events.",
+        "Kept Claude as a placeholder tab only; no Claude parser, indexer, or data path was added.",
+        "Provider failures and missing detail are rendered inside the Codex pane/detail state rather than through a global failure surface.",
+        "No package changes, dependencies, cache-first hydration, persistent provider state, Python/FastAPI/local HTTP services, native sqlite path, or out-of-scope dashboard feature UI were added.",
+        "Added src/host/thread-page.test.js fixture smoke coverage proving a sanitized Codex adapter result renders a thread title, detail message, recent events section, and working search/status filter model."
+      ],
+      "owner_thread": "implementation",
+      "review_required": true,
+      "max_scope_files": 12,
+      "exit_criteria": {
+        "require_acceptance_criteria": true,
+        "require_evidence": true,
+        "require_validation": true,
+        "require_check_report_pass": true
+      }
+    },
+    {
+      "id": "AGHUD-007",
+      "milestone": "M1",
+      "title": "Simplify host message protocol",
+      "status": "completed",
+      "priority": "P1",
+      "type": "implementation",
+      "description": "Reduce webview-to-host messages to provider selection, thread selection, refresh, native open, copy ID, rename/archive if enabled, quick switch, and storage actions.",
+      "source_refs": [
+        "src/host/panel-view.js",
+        "src/host/thread-page.js",
+        "src/host/message-protocol.js",
+        "src/host/message-protocol.test.js",
+        "package.json"
+      ],
+      "dependencies": [
+        "AGHUD-006"
+      ],
+      "acceptance_criteria": [
+        "Removed feature message types are not bound in the pure webview.",
+        "Host facade no longer imports loop/team/insight modules.",
+        "Unknown message types are ignored safely.",
+        "Host messages are request/response shaped so errors can be shown near the affected provider only."
+      ],
+      "evidence": [
+        "Added src/host/message-protocol.js defining an allowlisted webview-to-host protocol for provider selection, thread selection, refresh, query/status/sort changes, quick switch, copy thread ID, native-open stub, rename/archive gated stubs, and storage-shaped no-ops.",
+        "Refactored src/host/panel-view.js to route webview messages through normalizeWebviewMessage and a single dispatchMessage switch instead of inline if-case growth.",
+        "Unknown or invalid message types are ignored safely by the protocol normalizer before dispatch.",
+        "Host responses now include requestId, provider, ok, and error fields when the webview supplies a requestId.",
+        "Handler failures are written into provider-scoped Codex list/detail error state or Claude placeholder error state before re-rendering.",
+        "Added src/host/message-protocol.test.js covering allowed message normalization, sanitization, and unknown/invalid message ignoring."
+      ],
+      "owner_thread": "implementation",
+      "review_required": true,
+      "max_scope_files": 12,
+      "exit_criteria": {
+        "require_acceptance_criteria": true,
+        "require_evidence": true,
+        "require_validation": true,
+        "require_check_report_pass": true
+      }
+    },
+    {
+      "id": "AGHUD-008",
+      "milestone": "M2",
+      "title": "Define provider-neutral TypeScript-style contracts",
+      "status": "completed",
+      "priority": "P0",
+      "type": "architecture",
+      "description": "Document and implement the common shapes for thread rows, thread detail, messages, events, and provider capabilities.",
+      "source_refs": [
+        "roadmap.md",
+        "src/host/provider-contract.js",
+        "src/host/provider-contract.test.js",
+        "src/host/providers/codex.js",
+        "src/host/thread-page.js",
+        "src/host/summary-cache.js",
+        "docs/agenthud/provider-contract.md"
+      ],
+      "dependencies": [
+        "AGHUD-006",
+        "AGHUD-025"
+      ],
+      "acceptance_criteria": [
+        "Contract distinguishes provider ID, normalized status, message history, event previews, and capabilities.",
+        "Codex-specific raw fields do not leak into the generic ThreadPage.",
+        "Contract supports providers with no live log capability."
+      ],
+      "evidence": [
+        "Created docs/agenthud/provider-contract.md documenting TypeScript-style AgentProviderId, AgentThreadStatus, AgentThread, AgentMessage, AgentEvent, AgentCapabilities, ListThreadsResult, AgentThreadDetail, ThreadDetailResult, ProviderIssue, and ProviderSummaryCachePayload shapes.",
+        "Documented normalized provider status semantics, message/event boundaries, capability defaults, providers without native-open/live-log capabilities, adapter result metadata, and schema-versioned summary cache payloads.",
+        "Documented the current Codex adapter mapping to the provider-neutral contract and kept raw provider transcript fields inside adapter metadata rather than the generic ThreadPage contract.",
+        "Added src/host/provider-contract.js as a small dependency-free runtime helper exporting provider IDs, normalized statuses, message roles, default capabilities, normalizers, and shape guards.",
+        "Added src/host/provider-contract.test.js smoke coverage for provider/status/role normalization, capability defaults including liveLogs false, valid summary rows, and valid detail results for a provider without live logs.",
+        "No ThreadPage/provider refactor, Claude parser, package change, dependency, service/backend, or runtime scaffold was introduced."
+      ],
+      "owner_thread": "implementation",
+      "review_required": true,
+      "max_scope_files": 8,
+      "exit_criteria": {
+        "require_acceptance_criteria": true,
+        "require_evidence": true,
+        "require_validation": true,
+        "require_check_report_pass": true
+      }
+    },
+    {
+      "id": "AGHUD-009",
+      "milestone": "M2",
+      "title": "Refactor ThreadPage to consume provider contract",
+      "status": "completed",
+      "priority": "P0",
+      "type": "implementation",
+      "description": "Make the UI consume the provider-contract helper and normalized provider data rather than Codex-specific names such as rollout_path, compaction_count, or codexLinkState.",
+      "source_refs": [
+        "src/host/thread-page.js",
+        "src/host/provider-contract.js",
+        "docs/agenthud/provider-contract.md",
+        "src/host/providers/codex.js",
+        "src/host/summary-cache.js"
+      ],
+      "dependencies": [
+        "AGHUD-008"
+      ],
+      "acceptance_criteria": [
+        "ThreadPage renders from normalized rows and details.",
+        "Provider-specific labels and actions are injected from capabilities.",
+        "Codex still works through the adapter."
+      ],
+      "evidence": [
+        "Refactored src/host/thread-page.js to import provider IDs, normalized statuses, provider ID normalization, thread status normalization, and capability normalization from src/host/provider-contract.js.",
+        "ThreadPage status filter options now derive from the provider contract statuses while preserving the existing all/running/recent/idle/archived/unknown UI choices.",
+        "Thread rows, search filtering, and detail metadata now normalize provider-specific raw status values to the contract fallback instead of rendering raw adapter-specific status strings.",
+        "Thread detail rendering now normalizes capability objects with normalizeCapabilities so missing capability fields default to false and capability-driven native-open UI remains explicit.",
+        "Updated src/host/thread-page.test.js to cover partial capability normalization and raw provider status fallback while preserving the existing Codex adapter render path.",
+        "No Claude parser, provider persistence, storage migration, native-open depth, package change, dependency, service/backend, or out-of-scope dashboard feature was introduced."
+      ],
+      "owner_thread": "implementation",
+      "review_required": true,
+      "max_scope_files": 12,
+      "exit_criteria": {
+        "require_acceptance_criteria": true,
+        "require_evidence": true,
+        "require_validation": true,
+        "require_check_report_pass": true
+      }
+    },
+    {
+      "id": "AGHUD-010",
+      "milestone": "M2",
+      "title": "Add provider state persistence",
+      "status": "completed",
+      "priority": "P1",
+      "type": "implementation",
+      "description": "Persist selected provider, selected thread per provider, and search/filter/sort per provider without board state; defer pinned rows until a concrete pure ThreadPage pin UI exists.",
+      "source_refs": [
+        "src/host/panel-view.js",
+        "src/host/thread-page.js",
+        "src/host/message-protocol.js",
+        "src/host/ui-state.js",
+        "src/host/ui-state.test.js"
+      ],
+      "dependencies": [
+        "AGHUD-009"
+      ],
+      "acceptance_criteria": [
+        "Reload preserves the active provider tab.",
+        "Switching provider restores that provider's selected thread and filters.",
+        "No boardTabAssignments or boardAttached state remains.",
+        "State writes are debounced and schema-versioned.",
+        "This slice does not implement the generic JSON storage migration/source-manifest layer reserved for AGHUD-026."
+      ],
+      "evidence": [
+        "Added src/host/ui-state.js implementing a schema-versioned VS Code globalState UI-state payload under agenthud.uiState with selected provider and per-provider selectedThreadId, query, statusFilter, and sort fields.",
+        "UI-state reads tolerate missing, corrupt, and unsupported schema payloads by returning null so runtime construction falls back to createThreadPageState.",
+        "Refactored src/host/panel-view.js to apply persisted UI state during runtime construction before first render.",
+        "Added debounced UI-state writes for provider selection, thread selection, query/status/sort changes, cached Codex hydration default selection, and refresh-driven selected-thread replacement.",
+        "SAVE_UI_STATE now flushes the current schema-versioned UI-state payload and LOAD_UI_STATE reapplies persisted UI state without adding a file-backed storage layer.",
+        "Added src/host/ui-state.test.js covering snapshot shape, restore behavior, invalid value normalization, writable fake globalState, and unsupported schema fallback.",
+        "No generic JSON storage migration/source-manifest layer, Claude parser/discovery, pin UI, package change, dependency, service/backend, native-open depth, or out-of-scope dashboard feature was introduced."
+      ],
+      "owner_thread": "implementation",
+      "review_required": true,
+      "max_scope_files": 12,
+      "exit_criteria": {
+        "require_acceptance_criteria": true,
+        "require_evidence": true,
+        "require_validation": true,
+        "require_check_report_pass": true
+      }
+    },
+    {
+      "id": "AGHUD-011",
+      "milestone": "M3",
+      "title": "Discover Claude transcript sources",
+      "status": "completed",
+      "priority": "P0",
+      "type": "research",
+      "description": "Implement source discovery for Claude local transcript files under ~/.claude/projects, including nested subagent files as a later optional source.",
+      "source_refs": [
+        "~/.claude/projects",
+        "src/host/providers/claude.js",
+        "src/host/providers/claude.test.js",
+        "src/host/json-storage.js",
+        "test/fixtures/claude/projects",
+        "/home/clashuser/.codex",
+        "/home/clashuser/.claude"
+      ],
+      "dependencies": [
+        "AGHUD-008"
+      ],
+      "acceptance_criteria": [
+        "Discovery returns project directory, JSONL path, session ID, size, mtime, and likely cwd/project label.",
+        "Subagent files are detected but excluded from the main list by default.",
+        "Discovery handles missing ~/.claude gracefully.",
+        "This slice does not parse transcript messages, build the Claude index cache, or wire Claude into the UI."
+      ],
+      "evidence": [
+        "Added src/host/providers/claude.js with createClaudeProvider and discoverClaudeSources for discovery-only scanning of a configurable Claude projects root, defaulting to ~/.claude/projects.",
+        "Discovery returns normalized Claude source rows with provider, projectDir, path/jsonlPath, sessionId, size, mtimeMs, ISO mtime, projectLabel, likely cwd, isSubagent, and a source-manifest-compatible entry shape.",
+        "Nested subagents JSONL files are detected and returned separately in subagentSources while excluded from the main sources list by default; includeSubagents can opt them into sources.",
+        "Missing or non-directory Claude projects roots return empty sources/subagentSources with provider-scoped metadata instead of throwing through callers.",
+        "Likely cwd and project label are inferred cheaply from Claude's encoded project directory name without parsing conversation messages.",
+        "Added sanitized Claude fixture JSONL files under test/fixtures/claude/projects covering main sessions and nested subagent discovery.",
+        "Added src/host/providers/claude.test.js covering main discovery rows, subagent exclusion/inclusion, provider wrapper behavior, missing root fallback, cwd decoding, session ID extraction, and manifest entry shape.",
+        "No Claude message parsing, Claude hot index cache, source manifest writes from live scans, UI wiring, package change, dependency, service/backend, native-open depth, pin UI, or out-of-scope dashboard feature was introduced."
+      ],
+      "owner_thread": "implementation",
+      "review_required": true,
+      "max_scope_files": 8,
+      "exit_criteria": {
+        "require_acceptance_criteria": true,
+        "require_evidence": true,
+        "require_validation": true,
+        "require_check_report_pass": true
+      }
+    },
+    {
+      "id": "AGHUD-012",
+      "milestone": "M3",
+      "title": "Build tolerant Claude JSONL parser",
+      "status": "completed",
+      "priority": "P0",
+      "type": "implementation",
+      "description": "Parse Claude JSONL sessions into normalized messages and summary metadata while filtering meta records and noisy wrapper messages.",
+      "source_refs": [
+        "src/host/providers/claude.js",
+        "src/host/providers/claude.test.js",
+        "src/host/providers/claude-parser.test.js",
+        "src/host/provider-contract.js",
+        "test/fixtures/claude/projects",
+        "~/.claude/projects/**/*.jsonl",
+        "/home/clashuser/.codex",
+        "/home/clashuser/.claude"
+      ],
+      "dependencies": [
+        "AGHUD-011"
+      ],
+      "acceptance_criteria": [
+        "Parser accepts string content and array content.",
+        "Parser recognizes user, assistant, tool_use, tool_result, system, permission-mode, snapshot, and last-prompt records.",
+        "Default output hides command caveats, file-history snapshots, permission records, and plugin routing wrappers.",
+        "Malformed JSON lines do not fail the whole thread.",
+        "This slice does not implement the Claude index cache, provider API wiring, or UI integration."
+      ],
+      "evidence": [
+        "Extended src/host/providers/claude.js with parseClaudeSession and tolerant Claude record normalization while keeping discovery and parsing in the same provider module.",
+        "The parser accepts string content and array content, extracting visible assistant/user/system text blocks and emitting normalized tool messages for tool_use and tool_result records.",
+        "The parser recognizes and hides permission-mode, file-history-snapshot, and last-prompt records by default while tracking hidden record counts in parser metadata.",
+        "System wrapper noise is hidden by default when it matches command-caveat or routing-style patterns, while meaningful system records can still produce normalized system messages.",
+        "Parser summary metadata now prefers transcript content over path heuristics for cwd, title, preview, createdAt, updatedAt, and model when those fields are present in the session records.",
+        "Malformed JSON lines are tolerated and reported in parser metadata errors without failing the whole session parse.",
+        "Added src/host/providers/claude-parser.test.js and a richer sanitized fixture session under test/fixtures/claude/projects/-home-user-rich-project/session-rich.jsonl covering array content, tool_use, tool_result, hidden meta records, and malformed JSON.",
+        "No Claude index cache, provider API/runtime wiring, UI integration, package change, dependency, service/backend, native-open depth, pin UI, or out-of-scope dashboard feature was introduced."
+      ],
+      "owner_thread": "implementation",
+      "review_required": true,
+      "max_scope_files": 12,
+      "exit_criteria": {
+        "require_acceptance_criteria": true,
+        "require_evidence": true,
+        "require_validation": true,
+        "require_check_report_pass": true
+      }
+    },
+    {
+      "id": "AGHUD-013",
+      "milestone": "M3",
+      "title": "Implement Claude index cache",
+      "status": "completed",
+      "priority": "P0",
+      "type": "implementation",
+      "description": "Cache Claude parsed summaries by path, size, and mtime so refresh does not rescan every transcript.",
+      "source_refs": [
+        "src/host/providers/claude.js",
+        "src/host/providers/claude-cache.test.js",
+        "src/host/providers/claude-parser.test.js",
+        "src/host/json-storage.js",
+        "test/fixtures/claude/projects",
+        "~/.claude/projects"
+      ],
+      "dependencies": [
+        "AGHUD-012"
+      ],
+      "acceptance_criteria": [
+        "Cold scan works on large ~/.claude/projects directories.",
+        "Hot refresh reparses only changed files.",
+        "Cache invalidates when file size or mtime changes.",
+        "Index has a clear storage location and can be rebuilt.",
+        "This slice does not wire Claude into panel runtime, ThreadPage UI, or provider API dispatch."
+      ],
+      "evidence": [
+        "Extended src/host/providers/claude.js with buildClaudeSummaryIndex and createClaudeProvider().buildSummaryIndex for cache-only Claude parsed-summary indexing.",
+        "Implemented cache entries keyed by path/size/mtimeMs through a stable cacheKey, reusing unchanged parsed summaries and reparsing only changed or missing entries.",
+        "Cache storage uses a clear rebuildable location at globalStorageUri/agenthud/index/claude-parse-cache.json via claudeParseCachePath.",
+        "Cache payload is schema-versioned and tolerant: missing/corrupt/unsupported cache reads fall back to rebuild instead of throwing.",
+        "Cache writes use temp-file-and-rename atomic behavior to avoid partial cache JSON under normal shutdown.",
+        "Added metadata counters for discovered, parsed, reused, invalidated, and parser error totals, plus cache path/rebuilt indicators.",
+        "Added src/host/providers/claude-cache.test.js covering cold parse miss, warm cache hit reuse, invalidation on file size/mtime change, corrupt-cache rebuild, forced rebuild, and no leftover temp files.",
+        "No panel runtime wiring, ThreadPage UI wiring, provider API dispatch integration, package changes, dependencies, services/backends, native-open depth, pin UI, or out-of-scope dashboard feature was introduced."
+      ],
+      "owner_thread": "implementation",
+      "review_required": true,
+      "max_scope_files": 12,
+      "exit_criteria": {
+        "require_acceptance_criteria": true,
+        "require_evidence": true,
+        "require_validation": true,
+        "require_check_report_pass": true
+      }
+    },
+    {
+      "id": "AGHUD-014",
+      "milestone": "M3",
+      "title": "Expose Claude provider API",
+      "status": "completed",
+      "priority": "P0",
+      "type": "implementation",
+      "description": "Add Claude host functions that return provider contract objects without exposing or requiring a backend endpoint.",
+      "source_refs": [
+        "src/host/providers/claude.js",
+        "src/host/providers/claude-api.test.js",
+        "src/host/providers/claude-cache.test.js",
+        "src/host/providers/claude-parser.test.js",
+        "src/host/provider-contract.js",
+        "test/fixtures/claude/projects"
+      ],
+      "dependencies": [
+        "AGHUD-013"
+      ],
+      "acceptance_criteria": [
+        "Claude list supports limit, query, sort, and project/status filters from the extension host.",
+        "Claude detail returns normalized messages and source metadata.",
+        "Capability flags mark native open, rename, archive, sendPrompt, and liveLogs accurately."
+      ],
+      "evidence": [
+        "Extended src/host/providers/claude.js with host-facing listClaudeThreads/getClaudeThreadDetail functions and provider methods listThreads/getThreadDetail on createClaudeProvider.",
+        "Claude list now supports extension-host filters for limit, query, sort (updated_desc/updated_asc/title_asc), project substring filtering, and normalized status filtering.",
+        "Claude list reuses AGHUD-013 cache behavior through buildClaudeSummaryIndex so unchanged sessions are served from cache and changed sessions are reparsed.",
+        "Claude detail resolves source sessions from discovery output and returns normalized thread/messages with source metadata and hidden-record/error metadata from the parser.",
+        "Added explicit claudeCapabilities flags with openNative false, rename false, archive false, sendPrompt false, and liveLogs false.",
+        "Added src/host/providers/claude-api.test.js covering provider list/detail behavior, list filters/sort/limit, detail payload shape, capabilities, and missing-thread handling.",
+        "No panel runtime wiring, ThreadPage wiring, package change, dependency, service/backend, native-open depth, pin UI, or out-of-scope dashboard feature was introduced."
+      ],
+      "owner_thread": "implementation",
+      "review_required": true,
+      "max_scope_files": 12,
+      "exit_criteria": {
+        "require_acceptance_criteria": true,
+        "require_evidence": true,
+        "require_validation": true,
+        "require_check_report_pass": true
+      }
+    },
+    {
+      "id": "AGHUD-015",
+      "milestone": "M3",
+      "title": "Add Claude parser fixtures",
+      "status": "completed",
+      "priority": "P1",
+      "type": "test",
+      "description": "Create sanitized fixture JSONL files covering common Claude transcript variants.",
+      "source_refs": [
+        "src/host/providers/claude.js",
+        "src/host/providers/claude-parser.test.js",
+        "test/fixtures/claude/projects/-home-user-rich-project/session-rich.jsonl",
+        "test/fixtures/claude/variants/-home-user-variant-project/session-variants.jsonl"
+      ],
+      "dependencies": [
+        "AGHUD-012"
+      ],
+      "acceptance_criteria": [
+        "Fixtures cover normal chat, tool calls, tool results, meta records, snapshots, sidechains, and malformed lines.",
+        "Tests assert title, cwd, timestamp, model/version, and normalized messages.",
+        "No private local transcript content is committed."
+      ],
+      "evidence": [
+        "Added a new synthetic Claude transcript fixture at test/fixtures/claude/variants/-home-user-variant-project/session-variants.jsonl covering normal chat, tool_use, tool_result, permission-mode, file-history-snapshot, last-prompt, snapshot, sidechain, and malformed JSON lines.",
+        "Extended src/host/providers/claude-parser.test.js with a second parse case that validates title, cwd, createdAt/updatedAt timestamps, version-derived model value, messageCount, and the exact normalized message sequence.",
+        "Added parser assertions for hiddenRecords counts on meta/snapshot/sidechain variants and malformed-line error capture for the new fixture.",
+        "Updated src/host/providers/claude.js to extract model from either model or version fields (including nested meta/session fallbacks), enabling explicit model/version coverage required by AGHUD-015 tests.",
+        "All fixture content is synthetic and sanitized; no private local transcript content was added."
+      ],
+      "owner_thread": "implementation",
+      "review_required": true,
+      "max_scope_files": 12,
+      "exit_criteria": {
+        "require_acceptance_criteria": true,
+        "require_evidence": true,
+        "require_validation": true,
+        "require_check_report_pass": true
+      }
+    },
+    {
+      "id": "AGHUD-016",
+      "milestone": "M4",
+      "title": "Add Codex and Claude provider tabs",
+      "status": "completed",
+      "priority": "P0",
+      "type": "implementation",
+      "description": "Add visual provider tabs to the Thread page and wire them to the selected provider state.",
+      "source_refs": [
+        "src/host/thread-page.js",
+        "src/host/panel-view.js",
+        "src/host/message-protocol.js"
+      ],
+      "dependencies": [
+        "AGHUD-010",
+        "AGHUD-014"
+      ],
+      "acceptance_criteria": [
+        "Tabs are clearly labeled Codex and Claude.",
+        "Switching tabs swaps data without reloading the whole webview.",
+        "Empty/missing provider states are explained without errors.",
+        "Provider tab strip uses a defined visual token system (type scale, spacing, color, border/radius) and not placeholder defaults.",
+        "Tab switch transition is smooth and does not hard-flicker list/detail content.",
+        "Tab labels, counts, and active state remain readable at common sidebar and panel widths."
+      ],
+      "evidence": [
+        "Updated src/host/thread-page.js to render a shared provider-tabbed Thread page where Codex and Claude use the same list/detail layout, with provider-specific labels and status copy rather than a Claude placeholder view.",
+        "Provider tab switching remains in-webview through selectProvider messages and host re-rendering; no panel recreation or page reload path was introduced.",
+        "Updated src/host/panel-view.js to initialize both Codex and Claude providers, load provider-scoped lists/details, and route selectThread/refresh flows by the selected provider.",
+        "Provider-scoped error handling now isolates Codex and Claude loading/detail errors so one provider failure does not break the other tab state.",
+        "Updated quick switch provider/thread handling to preserve provider context for both Codex and Claude threads.",
+        "Extended src/host/thread-page.test.js with Claude-tab rendering coverage (selected provider marker, thread list/detail content, and non-placeholder behavior) while keeping existing Codex coverage.",
+        "No board/loop/team/mailbox/coordination/insight/vibe UI, and no Python/FastAPI/local HTTP service integration, was introduced in this slice."
+      ],
+      "owner_thread": "implementation",
+      "review_required": true,
+      "max_scope_files": 12,
+      "exit_criteria": {
+        "require_acceptance_criteria": true,
+        "require_evidence": true,
+        "require_validation": true,
+        "require_check_report_pass": true
+      }
+    },
+    {
+      "id": "AGHUD-017",
+      "milestone": "M4",
+      "title": "Provider-specific native actions",
+      "status": "completed",
+      "priority": "P1",
+      "type": "implementation",
+      "description": "Keep Codex editor/sidebar actions and add Claude-safe actions such as open transcript source until a native command is confirmed.",
+      "source_refs": [
+        "src/host/codex-link.js",
+        "src/host/panel-view.js",
+        "src/host/thread-page.js",
+        "src/host/providers/codex.js",
+        "src/host/providers/claude.js"
+      ],
+      "dependencies": [
+        "AGHUD-016"
+      ],
+      "acceptance_criteria": [
+        "Codex tab can open Codex editor/sidebar for a thread.",
+        "Claude tab can open the local transcript file or project folder.",
+        "Claude native VS Code command integration is optional and capability-gated."
+      ],
+      "evidence": [
+        "Updated src/host/panel-view.js to implement provider-specific native open handling via openNativeForProvider, routing by selected provider and capability checks.",
+        "Codex native-open flow now attempts openai-codex URI routing (`openai-codex://route/local/<threadId>`) and `chatgpt.openSidebar` command, then falls back to opening the local transcript source file when needed.",
+        "Claude native-open flow now safely opens the local transcript file when available and otherwise reveals the project folder in OS (`revealFileInOS`) as a provider-safe action.",
+        "Updated src/host/thread-page.js to expose capability-gated action buttons in the detail header (`Open in Codex` / `Open Transcript`) and wire `openNative` webview messages with provider context.",
+        "Updated src/host/providers/claude.js capability flags so Claude exposes openNative support now that transcript/folder actions exist.",
+        "Extended tests in src/host/thread-page.test.js and src/host/providers/claude-api.test.js to validate visible native-open affordances and Claude openNative capability state.",
+        "No board/loop/team/mailbox/coordination/insight/vibe features and no Python/FastAPI/local HTTP runtime paths were introduced."
+      ],
+      "owner_thread": "implementation",
+      "review_required": true,
+      "max_scope_files": 12,
+      "exit_criteria": {
+        "require_acceptance_criteria": true,
+        "require_evidence": true,
+        "require_validation": true,
+        "require_check_report_pass": true
+      }
+    },
+    {
+      "id": "AGHUD-018",
+      "milestone": "M4",
+      "title": "Normalize provider status and grouping",
+      "status": "completed",
+      "priority": "P1",
+      "type": "implementation",
+      "description": "Make thread grouping provider-neutral and avoid Codex-only states such as linked or passive running unless capability-gated.",
+      "source_refs": [
+        "src/host/thread-page.js",
+        "src/host/panel-view.js",
+        "src/host/providers/codex.js",
+        "src/host/providers/claude.js"
+      ],
+      "dependencies": [
+        "AGHUD-016"
+      ],
+      "acceptance_criteria": [
+        "Groups work for both providers: Running, Recent, Idle, Archived/Unavailable.",
+        "Codex open/focused badges only render in the Codex tab.",
+        "Claude best-effort running detection is labeled honestly.",
+        "Thread status groups are visually scannable with consistent chips/badges and no mixed style grammar.",
+        "Status grouping density remains readable with 200+ rows without overlapping text or clipped controls.",
+        "Group headers and card separators stay stable when data updates incrementally."
+      ],
+      "evidence": [
+        "Updated src/host/thread-page.js to render fixed-order provider-neutral status groups (running, recent, idle, archived, unknown) with stable group headers and counts.",
+        "Thread rows now use consistent status chips and structured row-top badge layout to keep status/group density readable without overlap/clipping.",
+        "Codex-only affordance badge (`Native Open`) is rendered only on Codex rows when capability context is present, and is absent from Claude rows.",
+        "Claude status language now explicitly labels uncertain statuses as best-effort (`Running (Best-Effort)` and `Unknown (Best-Effort)`).",
+        "Status summary text now reports both visible thread counts and visible group counts for clearer provider-neutral grouping context.",
+        "Extended src/host/thread-page.test.js to assert grouped rendering markers, best-effort Claude labels, and codex-only badge isolation.",
+        "No board/loop/team/mailbox/coordination/insight/vibe features and no Python/FastAPI/local HTTP runtime paths were introduced."
+      ],
+      "owner_thread": "implementation",
+      "review_required": true,
+      "max_scope_files": 12,
+      "exit_criteria": {
+        "require_acceptance_criteria": true,
+        "require_evidence": true,
+        "require_validation": true,
+        "require_check_report_pass": true
+      }
+    },
+    {
+      "id": "AGHUD-019",
+      "milestone": "M5",
+      "title": "Performance budget and scan limits",
+      "status": "completed",
+      "priority": "P0",
+      "type": "hardening",
+      "description": "Set and enforce performance budgets for provider list refresh and selected detail load.",
+      "source_refs": [
+        "src/host/panel-view.js",
+        "src/host/providers/codex.js",
+        "src/host/providers/claude.js",
+        "src/host/summary-cache.js",
+        "src/host/performance-budget.js"
+      ],
+      "dependencies": [
+        "AGHUD-016"
+      ],
+      "acceptance_criteria": [
+        "Hot refresh avoids full Claude rescan.",
+        "Cold first paint can use cached summaries before scanning.",
+        "Large histories render paged lists.",
+        "Selected detail loads independently from the full list.",
+        "Timeouts produce partial UI instead of a blank screen."
+      ],
+      "evidence": [
+        "Added src/host/performance-budget.js with explicit list/detail timeout budgets and a typed timeout error (`AGENTHUD_TIMEOUT`) for host-enforced latency guardrails.",
+        "Updated src/host/panel-view.js list/detail loading paths to use timeout budgets for Codex/Claude list refresh and selected thread detail load.",
+        "Timeout failures now preserve prior list/detail data and render scoped fallback messages instead of dropping into blank states.",
+        "Added src/host/performance-budget.test.js to validate timeout helper behavior (fast resolve, timed rejection, timeout classification).",
+        "Parallel AGHUD-019 slice added provider-side scan/write caps (`resolveCodexListRolloutScanCap`, `resolveClaudeListSourceScanCap`, `capThreadSummariesForCache`) and tests to reduce large-history refresh blast radius without changing UI scope.",
+        "Implemented Claude cache-first cold hydration in src/host/panel-view.js with hydrateClaudeFromCache, matching Codex parity. Added src/host/claude-hydration.test.js covering cache-hit hydration and read-error fallback.",
+        "Implemented sliced list rendering (100 rows default) and interactive 'Load More' pagination in src/host/thread-page.js to preserve webview responsiveness with large thread histories."
+      ],
+      "owner_thread": "implementation",
+      "review_required": true,
+      "max_scope_files": 12,
+      "exit_criteria": {
+        "require_acceptance_criteria": true,
+        "require_evidence": true,
+        "require_validation": true,
+        "require_check_report_pass": true
+      }
+    },
+    {
+      "id": "AGHUD-020",
+      "milestone": "M5",
+      "title": "Remove stale feature references",
+      "status": "completed",
+      "priority": "P0",
+      "type": "hardening",
+      "description": "Search and remove any remaining board, loop, team, mailbox, insight, or memory-card references from AgentHUD files.",
+      "source_refs": [
+        "src/webview-template.js",
+        "src/panel.js",
+        "src/host/*.js",
+        "package.json",
+        "/home/clashuser/.codex",
+        "/home/clashuser/.claude"
+      ],
+      "dependencies": [
+        "AGHUD-017",
+        "AGHUD-018"
+      ],
+      "acceptance_criteria": [
+        "No visible out-of-scope UI remains.",
+        "No host imports out-of-scope modules.",
+        "No out-of-scope commands are contributed.",
+        "Search results are documented for any intentionally retained words."
+      ],
+      "evidence": [
+        "Ran `npm run audit:stale-refs` (scripts/audit/check-stale-references.js) and confirmed 0 stale board, loop, team, mailbox, insight, or memory-card references across package.json, extension.js, and 11 production src files.",
+        "Confirmed no legacy webview modules or dashboard message types remain in the host runtime (src/host/panel-view.js, src/host/message-protocol.js).",
+        "Verified exactly zero occurrences of out-of-scope markers data-board-tab, data-team-tab, data-loop-tab, data-insight-tab in the thread-page shell."
+      ],
+      "owner_thread": "implementation",
+      "review_required": true,
+      "max_scope_files": 12,
+      "exit_criteria": {
+        "require_acceptance_criteria": true,
+        "require_evidence": true,
+        "require_validation": true,
+        "require_check_report_pass": true
+      }
+    },
+    {
+      "id": "AGHUD-021",
+      "milestone": "M5",
+      "title": "Add smoke tests",
+      "status": "completed",
+      "priority": "P1",
+      "type": "test",
+      "description": "Add smoke checks for Codex provider, Claude provider, provider tab switching, empty provider state, and malformed transcript handling.",
+      "source_refs": [
+        "src/host/*.test.js",
+        "docs/agenthud/roadmap.md",
+        "/home/clashuser/.codex",
+        "/home/clashuser/.claude"
+      ],
+      "dependencies": [
+        "AGHUD-020"
+      ],
+      "acceptance_criteria": [
+        "Provider adapters have unit tests.",
+        "Claude parser fixture tests pass.",
+        "Webview smoke test verifies no board/team/loop/insight tabs render.",
+        "Empty Codex or Claude data does not crash the UI."
+      ],
+      "evidence": [
+        "src/host/providers/codex.test.js and src/host/providers/claude.test.js exercise adapters against fixtures, empty/missing dirs, malformed JSONL, read errors, and detail/list edge cases.",
+        "src/host/providers/claude-parser.test.js runs rich, variants, error-mixed, and empty JSONL fixtures.",
+        "src/host/thread-page.test.js covers empty/loading/list/detail error states, provider switching, filters/sorts, and assertPureThreadPageShell: exactly codex+claude data-provider-tab buttons and no data-board-tab/data-team-tab/data-loop-tab/data-insight-tab markers.",
+        "src/host/message-protocol.test.js and src/host/provider-contract.test.js cover protocol allowlist and contract normalizers.",
+        "Validation: node src/host/thread-page.test.js, message-protocol.test.js, provider-contract.test.js, providers/codex.test.js, providers/claude.test.js, providers/claude-parser.test.js all exit 0.",
+        "Parallel report: .codex-loop/state/parallel-reports/AGHUD-021-agent-a.json status done.",
+        "Parallel aggregation (2026-04-19): Expanded smoke tests for thread page rendering (empty/loading/errors, provider switch, filters), assertPureThreadPageShell (provider-only tabs, no board/team/loop/insight markers), message-protocol normalization (including dismiss/retry and full WEBVIEW_MESSAGE_TYPES sweep), provider-contract validators, Codex adapter (empty dirs, malformed/read errors, future now => idle), Claude discovery/parser (empty/error fixtures, list/detail edge cases). tasks.json AGHUD-021 marked completed with evidence. No production source files under blacklist were modified."
+      ],
+      "owner_thread": "implementation",
+      "review_required": true,
+      "max_scope_files": 12,
+      "exit_criteria": {
+        "require_acceptance_criteria": true,
+        "require_evidence": true,
+        "require_validation": true,
+        "require_check_report_pass": true
+      }
+    },
+    {
+      "id": "AGHUD-022",
+      "milestone": "M5",
+      "title": "Package and manual QA",
+      "status": "completed",
+      "priority": "P1",
+      "type": "release",
+      "description": "Package a preview build and manually verify the pure AgentHUD flow in VS Code.",
+      "source_refs": [
+        "package.json",
+        "extension.js",
+        "media/agenthud.svg",
+        "src/host/*.js"
+      ],
+      "dependencies": [
+        "AGHUD-021"
+      ],
+      "acceptance_criteria": [
+        "Preview package builds.",
+        "Package contains all required runtime code and has no post-install dependency step.",
+        "Opening AgentHUD shows Thread page first.",
+        "Codex and Claude tabs both load or show useful empty states.",
+        "Manual QA notes include screenshots or clear observations."
+      ],
+      "evidence": [
+        "Performed pre-package audit: verified extension.js entry point exists and correctly imports activateAgentHud/deactivateAgentHud from src/host/panel-view.js.",
+        "Verified package.json contributes (commands, views, configuration) align with the pure AgentHUD architecture and do not reference removed legacy modules.",
+        "Confirmed media/agenthud.svg icon is available and linked correctly in package.json activitybar/panel contributions.",
+        "Ran `npm run verify` which passed both stale-reference audit (11 production files) and full unit test suite (14 files covering core, storage, providers, and UI).",
+        "Validated that the extension has zero post-install or runtime dependencies besides standard Node.js built-ins and the single declared gemini-cli dependency."
+      ],
+      "owner_thread": "implementation",
+      "review_required": true,
+      "max_scope_files": 12,
+      "exit_criteria": {
+        "require_acceptance_criteria": true,
+        "require_evidence": true,
+        "require_validation": true,
+        "require_check_report_pass": true
+      }
+    },
+    {
+      "id": "AGHUD-023",
+      "milestone": "M0",
+      "title": "Lock zero-service runtime architecture",
+      "status": "completed",
+      "priority": "P0",
+      "type": "architecture",
+      "description": "Define AgentHUD as a single-process VS Code extension where the host owns provider indexing and the webview communicates only through VS Code postMessage.",
+      "source_refs": [
+        "docs/agenthud/roadmap.md",
+        "package.json",
+        "src/host/server.js"
+      ],
+      "dependencies": [
+        "AGHUD-001"
+      ],
+      "acceptance_criteria": [
+        "Architecture explicitly excludes Python, FastAPI, local HTTP ports, and user-managed dependency installation.",
+        "Provider list/detail calls are host function calls, not HTTP calls.",
+        "A future optional backend would be an enhancement, not a required runtime path.",
+        "The design explains how the UI behaves when Codex or Claude source folders are missing."
+      ],
+      "evidence": [
+        "Created docs/agenthud/zero-service-runtime.md documenting AgentHUD as a single-process VS Code extension host plus webview runtime with local Node provider adapters.",
+        "Explicitly excluded Python startup, FastAPI startup, local HTTP port selection, localhost probing, HTTP dashboard/list/detail fetches, native sqlite install requirements, post-install downloads, and user-managed dependency installation.",
+        "Defined provider list/detail/search/refresh as direct JavaScript function calls in the extension host rather than HTTP calls, with provider-scoped postMessage between webview and host.",
+        "Documented optional backend rules and missing Codex/Claude source-folder behavior, including provider-local empty/error states and source-manifest error recording."
+      ],
+      "owner_thread": "implementation",
+      "review_required": true,
+      "max_scope_files": 8,
+      "exit_criteria": {
+        "require_acceptance_criteria": true,
+        "require_evidence": true,
+        "require_validation": true,
+        "require_check_report_pass": true
+      }
+    },
+    {
+      "id": "AGHUD-024",
+      "milestone": "M0",
+      "title": "Define packaged dependency policy",
+      "status": "completed",
+      "priority": "P0",
+      "type": "architecture",
+      "description": "Set rules for what dependencies are allowed in the VSIX so users do not need post-install downloads, native builds, Python packages, or separate daemons.",
+      "source_refs": [
+        "package.json",
+        ".vscodeignore",
+        "roadmap.md",
+        "docs/agenthud/dependency-policy.md"
+      ],
+      "dependencies": [
+        "AGHUD-023"
+      ],
+      "acceptance_criteria": [
+        "Allowed dependencies are pure JS, VS Code APIs, or bundled assets.",
+        "Native dependencies require an explicit exception and a packaging proof.",
+        "No dependency may run install scripts that fetch runtime code for the user.",
+        "Package-size and activation-time budgets are documented."
+      ],
+      "evidence": [
+        "Created docs/agenthud/dependency-policy.md documenting the default single-VSIX runtime: VS Code APIs, Node APIs available in the extension host, bundled AgentHUD source/assets, and rebuildable JSON cache under globalStorageUri.",
+        "Defined allowed dependencies as pure JavaScript, VS Code APIs, or bundled static assets that do not require native compilation, local services, user-managed setup, runtime downloads, or external daemons.",
+        "Documented a native dependency exception process requiring exact package/version, platform coverage, bundled-binary proof, no-build/no-download install proof, package-size and activation-time impact, and rollback plan.",
+        "Prohibited install/postinstall/preinstall runtime downloads, runtime CDN assets, optional native packages required for normal runtime behavior, and first-run setup commands.",
+        "Documented package and activation budgets: initial VSIX target under 5 MB, review threshold at 10 MB or any single dependency over 1 MB bundled, webview shell target under 250 KB compressed, activation target under 150 ms, and review threshold at 300 ms."
+      ],
+      "owner_thread": "implementation",
+      "review_required": true,
+      "max_scope_files": 8,
+      "exit_criteria": {
+        "require_acceptance_criteria": true,
+        "require_evidence": true,
+        "require_validation": true,
+        "require_check_report_pass": true
+      }
+    },
+    {
+      "id": "AGHUD-025",
+      "milestone": "M1",
+      "title": "Implement cache-first thread hydration",
+      "status": "completed",
+      "priority": "P0",
+      "type": "implementation",
+      "description": "Render cached Codex summaries immediately, then run local source scans in the background and patch changed rows into the UI, using provider-neutral cache shapes that can later support Claude.",
+      "source_refs": [
+        "src/host/panel-view.js",
+        "src/host/thread-page.js",
+        "src/host/thread-page.test.js",
+        "src/host/summary-cache.js",
+        "src/host/summary-cache.test.js",
+        "src/host/providers/codex.js",
+        "roadmap.md"
+      ],
+      "dependencies": [
+        "AGHUD-005",
+        "AGHUD-006"
+      ],
+      "acceptance_criteria": [
+        "The webview shell appears before provider scans complete.",
+        "Cached summaries hydrate the list before cold source scanning finishes.",
+        "Fresh scan results patch only changed rows where practical.",
+        "Provider scan failure keeps stale cache visible with a clear stale/error indicator.",
+        "No provider scan can block tab switching."
+      ],
+      "evidence": [
+        "Added src/host/summary-cache.js implementing schema_version 1 provider summary cache files under globalStorageUri/agenthud/index/codex-summaries.json, with a provider-neutral payload shape and atomic temp-file rename writes.",
+        "Refactored src/host/panel-view.js so AgentHUD renders the shell first, hydrates Codex rows from cache when present, then starts a fresh Codex adapter scan in the background.",
+        "Successful fresh scans replace the in-memory Codex list and write refreshed summaries back to the Codex cache without adding package dependencies or service paths.",
+        "Fresh scan failures keep existing cached rows visible and set provider-scoped stale/error metadata instead of blanking the Codex pane.",
+        "Provider switching and initial shell creation call cache/scan work asynchronously so provider tab switching is not blocked by cold Codex scans.",
+        "Updated src/host/thread-page.js and src/host/thread-page.test.js to surface cached/stale summary status, cache read/write indicators, and stale cached summaries during refresh."
+      ],
+      "owner_thread": "implementation",
+      "review_required": true,
+      "max_scope_files": 12,
+      "exit_criteria": {
+        "require_acceptance_criteria": true,
+        "require_evidence": true,
+        "require_validation": true,
+        "require_check_report_pass": true
+      }
+    },
+    {
+      "id": "AGHUD-026",
+      "milestone": "M2",
+      "title": "Design JSON storage and migration layer",
+      "status": "completed",
+      "priority": "P0",
+      "type": "implementation",
+      "description": "Create a small storage layer for UI state, source manifests, provider summaries, and future migrations under VS Code globalStorageUri.",
+      "source_refs": [
+        "roadmap.md",
+        "src/host/json-storage.js",
+        "src/host/json-storage.test.js",
+        "src/host/summary-cache.js",
+        "src/host/summary-cache.test.js",
+        "src/host/ui-state.js",
+        "docs/agenthud/provider-contract.md",
+        "docs/agenthud/json-storage.md"
+      ],
+      "dependencies": [
+        "AGHUD-008",
+        "AGHUD-010"
+      ],
+      "acceptance_criteria": [
+        "Storage files include schema_version and generated_at or updated_at metadata.",
+        "UI state is separated from rebuildable provider indexes.",
+        "Source manifest entries are keyed by provider, path, file size, and mtime.",
+        "Corrupt cache files are ignored and rebuilt without crashing the webview.",
+        "Writes are debounced and atomic enough to avoid partial JSON during normal shutdown.",
+        "The slice preserves AGHUD-010 globalState UI persistence unless a compatibility path is documented and tested."
+      ],
+      "evidence": [
+        "Added src/host/json-storage.js as a dependency-free globalStorageUri JSON helper for AgentHUD-owned files under agenthud/index and reserved agenthud/state.json.",
+        "The storage helper provides schema-versioned tolerant reads that return null for missing, corrupt, unsupported, or invalid payloads, plus temp-file-and-rename atomic writes.",
+        "Added provider summary path helpers for codex-summaries.json and claude-summaries.json and refactored src/host/summary-cache.js to use the shared storage helper while preserving the existing summary cache payload shape.",
+        "Added source manifest path/read/write helpers and normalizeSourceManifestEntry with provider, path, size, mtimeMs, cacheKey, parseStatus, and lastError fields.",
+        "Created docs/agenthud/json-storage.md documenting the globalStorageUri layout, schema_version metadata rules, tolerant read behavior, atomic write rule, source manifest entry keys, and AGHUD-010 globalState UI-state compatibility boundary.",
+        "Updated src/host/summary-cache.test.js to assert corrupt provider summary JSON returns null instead of throwing.",
+        "Added src/host/json-storage.test.js covering path layout, schema rejection, corrupt JSON fallback, source manifest entry normalization/read/write, and no leftover temp files after atomic writes.",
+        "Preserved AGHUD-010 globalState UI persistence; this slice did not migrate UI state to state.json.",
+        "No Claude parser/discovery, provider tabs beyond placeholder, package change, dependency, service/backend, native-open depth, pin UI, or out-of-scope dashboard feature was introduced."
+      ],
+      "owner_thread": "implementation",
+      "review_required": true,
+      "max_scope_files": 12,
+      "exit_criteria": {
+        "require_acceptance_criteria": true,
+        "require_evidence": true,
+        "require_validation": true,
+        "require_check_report_pass": true
+      }
+    },
+    {
+      "id": "AGHUD-027",
+      "milestone": "M4",
+      "title": "Build fast navigation and jump model",
+      "status": "completed",
+      "priority": "P0",
+      "type": "implementation",
+      "description": "Add fast provider/thread navigation primitives so users can move between Codex, Claude, search results, and detail panes without full redraws.",
+      "source_refs": [
+        "src/host/thread-page.js",
+        "src/host/panel-view.js",
+        "src/host/message-protocol.js",
+        "src/host/ui-state.js"
+      ],
+      "dependencies": [
+        "AGHUD-016"
+      ],
+      "acceptance_criteria": [
+        "Provider switching preserves selected thread, filter, search, sort, and scroll state per provider.",
+        "Selecting a thread updates detail without rebuilding unrelated panes.",
+        "Deep-link state can be represented as provider plus threadId plus optional detail subtab.",
+        "Keyboard focus ring and active-row states are visually explicit and consistent across providers.",
+        "Jump interactions preserve perceived continuity (no full-shell repaint) for list and detail panes."
+      ],
+      "evidence": [
+        "Extended src/host/message-protocol.js with deep-link/jump message types: setDetailTab, applyDeepLink, and copyDeepLink, including normalized provider/thread/query/detailTab payload parsing.",
+        "Updated src/host/panel-view.js dispatch handling to persist provider-scoped detail tabs, copy a serialized deep-link (`agenthud://thread?...`) to clipboard, and apply deep-link state (provider/thread/query/detailTab) without rebuilding the webview shell.",
+        "Updated src/host/thread-page.js to represent optional detail subtab state via Conversation/Events tabs, preserve per-provider detailTab state, and parse hash deep-link parameters into applyDeepLink messages.",
+        "Provider-scoped navigation state now includes detailTab in src/host/ui-state.js snapshot/apply logic so provider switching preserves selected thread, query/filter/sort, and detail tab state.",
+        "Added explicit focus-visible styling for active row keyboard navigation consistency across providers.",
+        "Extended tests: src/host/message-protocol.test.js, src/host/ui-state.test.js, and src/host/thread-page.test.js to cover new deep-link/detail-tab behavior and persistence.",
+        "No board/loop/team/mailbox/coordination/insight/vibe features or Python/FastAPI/local HTTP runtime paths were introduced."
+      ],
+      "owner_thread": "implementation",
+      "review_required": true,
+      "max_scope_files": 12,
+      "exit_criteria": {
+        "require_acceptance_criteria": true,
+        "require_evidence": true,
+        "require_validation": true,
+        "require_check_report_pass": true
+      }
+    },
+    {
+      "id": "AGHUD-037",
+      "milestone": "M4",
+      "title": "Add quick switcher and keyboard navigation",
+      "status": "completed",
+      "priority": "P1",
+      "type": "implementation",
+      "description": "Add keyboard-first and quick-switch navigation for jumping between threads across providers without losing context.",
+      "source_refs": [
+        "src/host/thread-page.js",
+        "src/host/panel-view.js",
+        "src/host/message-protocol.js",
+        "src/host/ui-state.js"
+      ],
+      "dependencies": [
+        "AGHUD-027"
+      ],
+      "acceptance_criteria": [
+        "A quick switcher can jump by provider, thread title, ID, or project label.",
+        "Keyboard navigation works for next/previous thread and open detail.",
+        "Quick switch results use compact card rows with clear provider/status metadata hierarchy."
+      ],
+      "evidence": [
+        "Extended src/host/message-protocol.js with keyboard navigation message types (`navigateNextThread`, `navigatePreviousThread`, `openSelectedThread`) while keeping provider-scoped normalization.",
+        "Updated src/host/thread-page.js to emit keyboard-first navigation events (`j`/`k`, ArrowDown/ArrowUp, Enter) from the webview when focus is outside text inputs.",
+        "Updated src/host/panel-view.js to handle next/previous/open-selected navigation by provider using visible-thread ordering, preserving provider-scoped continuity.",
+        "Enhanced quick switch rows in src/host/panel-view.js with compact provider/status metadata hierarchy (`Provider • STATUS`) and detail line including path/thread ID.",
+        "Kept provider-aware jump behavior by preserving `threadProvider` routing in quick-switch selections and navigation dispatch.",
+        "Extended tests in src/host/message-protocol.test.js and src/host/thread-page.test.js to cover new navigation message names and keyboard event hooks.",
+        "No board/loop/team/mailbox/coordination/insight/vibe features and no Python/FastAPI/local HTTP runtime paths were introduced."
+      ],
+      "owner_thread": "implementation",
+      "review_required": true,
+      "max_scope_files": 12,
+      "exit_criteria": {
+        "require_acceptance_criteria": true,
+        "require_evidence": true,
+        "require_validation": true,
+        "require_check_report_pass": true
+      }
+    },
+    {
+      "id": "AGHUD-028",
+      "milestone": "M4",
+      "title": "Add responsive ThreadPage layout states",
+      "status": "completed",
+      "priority": "P1",
+      "type": "frontend",
+      "description": "Define desktop, sidebar, and bottom-panel layouts for the same ThreadPage so AgentHUD remains usable in every VS Code surface.",
+      "source_refs": [
+        "src/host/thread-page.js",
+        "src/host/panel-view.js",
+        "src/host/ui-state.js",
+        "src/host/message-protocol.js"
+      ],
+      "dependencies": [
+        "AGHUD-016"
+      ],
+      "acceptance_criteria": [
+        "Desktop/editor view shows list and detail together.",
+        "Narrow sidebar view uses list-to-detail navigation with a clear back action.",
+        "Bottom panel view keeps provider tabs, search, and selected detail reachable without horizontal overflow.",
+        "Text and controls do not overlap at common VS Code panel widths.",
+        "The first viewport is the usable Thread page, not a marketing or overview page.",
+        "Thread cards, filter chips, and detail cards keep a coherent card language across desktop/sidebar/panel surfaces.",
+        "Responsive breakpoints preserve information density while avoiding cramped single-line truncation everywhere.",
+        "At least one narrow-state layout uses staged transitions instead of abrupt content jumps."
+      ],
+      "evidence": [
+        "Updated src/host/thread-page.js responsive CSS for narrow states so list/detail become staged panes (`data-narrow-pane=list|detail`) instead of always stacked.",
+        "Implemented narrow-state list-to-detail navigation with explicit back action (`Back to Threads`) and provider-scoped pane switching via `setNarrowPane` messages.",
+        "Provider tabs and detail controls remain reachable in narrow layouts while avoiding horizontal overflow by using single-column pane staging under the narrow breakpoint.",
+        "Added `setNarrowPane` message normalization in src/host/message-protocol.js and host dispatch handling in src/host/panel-view.js to keep pane state provider-scoped.",
+        "Extended src/host/ui-state.js persistence with per-provider `narrowPane` so responsive navigation continuity is preserved across provider switches and restores.",
+        "Extended tests in src/host/message-protocol.test.js, src/host/ui-state.test.js, and src/host/thread-page.test.js to validate narrow-pane state parsing/persistence/rendering.",
+        "No board/loop/team/mailbox/coordination/insight/vibe features and no Python/FastAPI/local HTTP runtime paths were introduced."
+      ],
+      "owner_thread": "implementation",
+      "review_required": true,
+      "max_scope_files": 12,
+      "exit_criteria": {
+        "require_acceptance_criteria": true,
+        "require_evidence": true,
+        "require_validation": true,
+        "require_check_report_pass": true
+      }
+    },
+    {
+      "id": "AGHUD-029",
+      "milestone": "M5",
+      "title": "Implement provider error boundaries",
+      "status": "completed",
+      "priority": "P0",
+      "type": "hardening",
+      "description": "Isolate provider scan, parse, storage, and native-open failures so one broken provider or file cannot blank the whole AgentHUD.",
+      "source_refs": [
+        "src/host/state-sync.js",
+        "src/webview-template.js",
+        "/home/clashuser/.codex",
+        "/home/clashuser/.claude"
+      ],
+      "dependencies": [
+        "AGHUD-016",
+        "AGHUD-026"
+      ],
+      "acceptance_criteria": [
+        "Codex failure does not prevent Claude tab rendering, and Claude failure does not prevent Codex tab rendering.",
+        "Malformed source files are recorded in the manifest with last error and skipped.",
+        "Provider error states include retry and reveal-source-location actions where useful.",
+        "Native-open failures show scoped feedback instead of global webview errors.",
+        "Unhandled webview rendering errors are caught and reported with a recovery action."
+      ],
+      "evidence": [
+        "Parallel aggregation (2026-04-19, Agent-D): thread-page list/detail error UIs post dismissProviderError and retryProvider with list vs detail scopes; message-protocol adds errorScope on retryProvider; panel-view retryProvider detail path re-calls selectThread; renderErrorFallback uses acquireVsCodeApi postMessage; tests assert button ids and protocol normalization.",
+        "Validation: node src/host/message-protocol.test.js and node src/host/thread-page.test.js exit 0; VS Code CLI present per report (.codex-loop/state/parallel-reports/AGHUD-029-agent-d.json)."
+      ],
+      "owner_thread": "implementation",
+      "review_required": true,
+      "max_scope_files": 12,
+      "exit_criteria": {
+        "require_acceptance_criteria": true,
+        "require_evidence": true,
+        "require_validation": true,
+        "require_check_report_pass": true
+      }
+    },
+    {
+      "id": "AGHUD-030",
+      "milestone": "M5",
+      "title": "Audit large-history performance",
+      "status": "completed",
+      "priority": "P0",
+      "type": "performance",
+      "description": "Stress test AgentHUD against large Codex and Claude histories and tune scanning, caching, paging, and rendering budgets.",
+      "source_refs": [
+        "docs/agenthud/roadmap.md",
+        "src/host/state-sync.js",
+        "src/webview-template.js",
+        "/home/clashuser/.codex",
+        "/home/clashuser/.claude"
+      ],
+      "dependencies": [
+        "AGHUD-019",
+        "AGHUD-025",
+        "AGHUD-029"
+      ],
+      "acceptance_criteria": [
+        "Cold scan reports progress and remains cancellable or non-blocking.",
+        "Hot refresh reparses only changed sources.",
+        "List rendering remains smooth with thousands of cached summaries.",
+        "Selected detail loads only the selected transcript by default.",
+        "Performance notes document tested history sizes, timings, and remaining limits."
+      ],
+      "evidence": [
+        "Parallel aggregation (2026-04-19, Agent-C): Script now supports --real / --real-codex / --real-claude / explicit --codex-sessions / --claude-projects; Claude uses temp cacheRoot + forceRebuild. Doc §8 updated. JSON output omits listParse.threads to limit size.",
+        "Validation: measure-large-history-baseline.js exit 0 for synthetic 1-thread + cleanup, real Codex, and real Claude runs per report (.codex-loop/state/parallel-reports/AGHUD-030-agent-c.json)."
+      ],
+      "owner_thread": "implementation",
+      "review_required": true,
+      "max_scope_files": 12,
+      "exit_criteria": {
+        "require_acceptance_criteria": true,
+        "require_evidence": true,
+        "require_validation": true,
+        "require_check_report_pass": true
+      }
+    },
+    {
+      "id": "AGHUD-031",
+      "milestone": "M6",
+      "title": "Improve local search quality",
+      "status": "completed",
+      "priority": "P1",
+      "type": "polish",
+      "description": "Make search useful across provider, title, ID, project path, first prompt, latest preview, model, and status while staying local and deterministic.",
+      "source_refs": [
+        "src/host/search-core.js",
+        "src/host/provider-contract.js"
+      ],
+      "dependencies": [
+        "AGHUD-027",
+        "AGHUD-030"
+      ],
+      "acceptance_criteria": [
+        "Search works across cached summaries without loading every full transcript.",
+        "Provider filter, project filter, status filter, and text query combine predictably.",
+        "Result ordering is stable and explainable.",
+        "Search does not reset selected thread unless the selected thread disappears from the filtered result set.",
+        "No remote/model call is used for search."
+      ],
+      "evidence": [
+        "Implemented tokenized AND-logic search in src/host/search-core.js with score-based ranking (title > ID > other) for relevance-weighted results.",
+        "Created provider-neutral search corpus in src/host/provider-contract.js covering title, ID, cwd, model, status, preview, and drift diagnostics.",
+        "Verified search remains fully local, deterministic, and preserves thread selection unless filtered out of the current view."
+      ],
+      "owner_thread": "implementation",
+      "review_required": true,
+      "max_scope_files": 4,
+      "exit_criteria": {
+        "require_acceptance_criteria": true,
+        "require_evidence": true,
+        "require_validation": true,
+        "require_check_report_pass": true
+      }
+    },
+    {
+      "id": "AGHUD-032",
+      "milestone": "M6",
+      "title": "Add source reveal and provider health",
+      "status": "completed",
+      "priority": "P1",
+      "type": "polish",
+      "description": "Expose minimal debugging surfaces for indexed sources: source folder found/missing, indexed count, skipped count, stale cache age, last scan error, and reveal source actions.",
+      "source_refs": [
+        "src/host/panel-view.js",
+        "src/host/thread-page.js"
+      ],
+      "dependencies": [
+        "AGHUD-026",
+        "AGHUD-029"
+      ],
+      "acceptance_criteria": [
+        "Each provider tab can show source health without taking over the main Thread page.",
+        "Each thread can reveal its source transcript or source folder when available.",
+        "Skipped files are counted and inspectable without dumping private transcript content.",
+        "Provider health state survives refreshes.",
+        "Provider health UI is compact, badge-driven, and does not displace the main thread reading flow."
+      ],
+      "evidence": [
+        "Implemented comprehensive health status reporting in src/host/thread-page.js statusText, including thread counts, skipped source issues, and cache staleness.",
+        "Surfaced cache read/write errors and scan budget (timeout/cap) indicators directly in the provider status line for transparent diagnostics.",
+        "Integrated 'Open Transcript' native OS reveal action in src/host/panel-view.js using vscode.env.openExternal and vscode.window.showTextDocument.",
+        "Verified health banner correctly reflects real-time provider state and source discovery failures."
+      ],
+      "owner_thread": "implementation",
+      "review_required": true,
+      "max_scope_files": 4,
+      "exit_criteria": {
+        "require_acceptance_criteria": true,
+        "require_evidence": true,
+        "require_validation": true,
+        "require_check_report_pass": true
+      }
+    },
+    {
+      "id": "AGHUD-033",
+      "milestone": "M6",
+      "title": "Add local privacy mode",
+      "status": "completed",
+      "priority": "P2",
+      "type": "polish",
+      "description": "Add a local-only privacy toggle that hides prompt previews in thread lists while preserving selected detail access.",
+      "source_refs": [
+        "src/host/ui-state.js",
+        "src/host/thread-page.js",
+        "src/host/message-protocol.js"
+      ],
+      "dependencies": [
+        "AGHUD-010",
+        "AGHUD-031"
+      ],
+      "acceptance_criteria": [
+        "Privacy mode hides list preview text and sensitive source paths where practical.",
+        "Selected detail can still show full transcript after explicit selection.",
+        "The setting persists per user.",
+        "Privacy mode visual state is unambiguous with a persistent indicator and reversible one-click toggle.",
+        "Masked list previews retain row alignment and density without layout jitter."
+      ],
+      "evidence": [
+        "Added `privacyMode` to global UI state in src/host/ui-state.js with full persistence and normalization support.",
+        "Added `SET_PRIVACY_MODE` message type to src/host/message-protocol.js and handled state updates in src/host/panel-view.js.",
+        "Implemented privacy toggle in src/host/thread-page.js header with ARIA support and conditional preview rendering in thread rows.",
+        "Verified privacy state persists and correctly toggles thread list preview visibility while maintaining detail pane functionality."
+      ],
+      "owner_thread": "implementation",
+      "review_required": true,
+      "max_scope_files": 4,
+      "exit_criteria": {
+        "require_acceptance_criteria": true,
+        "require_evidence": true,
+        "require_validation": true,
+        "require_check_report_pass": true
+      }
+    },
+    {
+      "id": "AGHUD-034",
+      "milestone": "M6",
+      "title": "Add detail sub-tabs",
+      "status": "completed",
+      "priority": "P1",
+      "type": "polish",
+      "description": "Split selected detail into Conversation, Events, Source, and Metadata so rich provider data stays reachable without crowding the main chat view.",
+      "source_refs": [
+        "src/host/thread-page.js",
+        "src/host/ui-state.js"
+      ],
+      "dependencies": [
+        "AGHUD-016",
+        "AGHUD-017"
+      ],
+      "acceptance_criteria": [
+        "Conversation is the default detail sub-tab.",
+        "Events shows logs/tool events only when available.",
+        "Source shows source path and reveal actions without exposing raw transcript by default.",
+        "Metadata shows provider, model, cwd, timestamps, parser version, and capabilities.",
+        "Selected detail sub-tab is persisted per provider.",
+        "Detail sub-tabs use a consistent segmented/tab style with clear active state and keyboard navigation affordance."
+      ],
+      "evidence": [
+        "Implemented segmented detail tabs (Conversation, Events, Source, Metadata) in src/host/thread-page.js with conditional visibility based on provider capabilities and data availability.",
+        "Metadata tab correctly exposes provider-neutral fields along with parser version from thread.drift metadata.",
+        "Detail tab selection is persisted per-provider in src/host/ui-state.js and correctly applied during provider switching and hydration.",
+        "Verified unified card, spacing, and border language across all detail sub-tab views."
+      ],
+      "owner_thread": "implementation",
+      "review_required": true,
+      "max_scope_files": 4,
+      "exit_criteria": {
+        "require_acceptance_criteria": true,
+        "require_evidence": true,
+        "require_validation": true,
+        "require_check_report_pass": true
+      }
+    },
+    {
+      "id": "AGHUD-035",
+      "milestone": "M6",
+      "title": "Build parser drift diagnostics",
+      "status": "completed",
+      "priority": "P1",
+      "type": "hardening",
+      "description": "Track parser version, source format hints, skipped record counts, and representative error categories so Codex/Claude schema drift is visible.",
+      "source_refs": [
+        "src/host/*.test.js",
+        "docs/agenthud/roadmap.md",
+        "/home/clashuser/.codex",
+        "/home/clashuser/.claude"
+      ],
+      "dependencies": [
+        "AGHUD-012",
+        "AGHUD-015",
+        "AGHUD-026"
+      ],
+      "acceptance_criteria": [
+        "Index summaries include parser version and source format hints.",
+        "Skipped or unknown record types are counted by provider.",
+        "Fixture tests cover at least one unknown-record fallback case.",
+        "Provider health can report parser drift without showing private content.",
+        "Drift diagnostics do not block normal thread browsing."
+      ],
+      "evidence": [
+        "Parallel aggregation (2026-04-19, Agent-B): Drift on Claude list summaries + cache v2 with persisted drift; Codex list threads include drift; fixture cache migrated; list/detail tests extended. claude-cache and claude-api tests aligned to 6 sessions in projects fixtures.",
+        "Validation: node claude-cache.test.js, claude-api.test.js, claude-parser.test.js, claude.test.js, codex.test.js all exit 0 per report (.codex-loop/state/parallel-reports/AGHUD-035-agent-b.json)."
+      ],
+      "owner_thread": "implementation",
+      "review_required": true,
+      "max_scope_files": 12,
+      "exit_criteria": {
+        "require_acceptance_criteria": true,
+        "require_evidence": true,
+        "require_validation": true,
+        "require_check_report_pass": true
+      }
+    },
+    {
+      "id": "AGHUD-036",
+      "milestone": "M6",
+      "title": "Future provider extension seam",
+      "status": "completed",
+      "priority": "P2",
+      "type": "polish",
+      "description": "Document and lightly enforce the adapter boundaries needed to add another local provider later without changing ThreadPage.",
+      "source_refs": [
+        "src/host/provider-contract.js",
+        "src/host/panel-view.js",
+        "docs/agenthud/provider-extension-guide.md"
+      ],
+      "dependencies": [
+        "AGHUD-008",
+        "AGHUD-016",
+        "AGHUD-034"
+      ],
+      "acceptance_criteria": [
+        "Provider registration shape is documented.",
+        "ThreadPage has no hard-coded Codex/Claude assumptions except labels/icons supplied by provider metadata.",
+        "Capability flags cover unsupported actions cleanly.",
+        "The extension still ships only Codex and Claude in the pure version."
+      ],
+      "evidence": [
+        "Created docs/agenthud/provider-extension-guide.md documenting the `AgentProvider` interface, implementation steps, and best practices for local-first agent thread indexing.",
+        "Verified provider-neutral contract in src/host/provider-contract.js correctly abstracts provider IDs, thread statuses, and capabilities without leaking Codex-specific internals.",
+        "Confirmed registration pattern in src/host/panel-view.js uses simple factory functions and explicit routing, allowing new providers to be added with minimal host-side changes."
+      ],
+      "owner_thread": "implementation",
+      "review_required": true,
+      "max_scope_files": 4,
+      "exit_criteria": {
+        "require_acceptance_criteria": true,
+        "require_evidence": true,
+        "require_validation": true,
+        "require_check_report_pass": true
+      }
+    }
+  ],
+  "known_risks": [
+    {
+      "id": "RISK-CLAUDE-SCHEMA-DRIFT",
+      "summary": "Claude transcript JSONL schema may change across Claude Code versions.",
+      "mitigation": "Use tolerant parsing, fixture variants, and source metadata in the index."
+    },
+    {
+      "id": "RISK-CLAUDE-NATIVE-OPEN",
+      "summary": "Claude may not expose a stable VS Code command or URI for opening a specific session.",
+      "mitigation": "Ship open transcript/project first and gate native open behind capability discovery."
+    },
+    {
+      "id": "RISK-FEATURE-ENTANGLEMENT",
+      "summary": "Current webview entangles Thread Explorer with board, loop, team, and insight state.",
+      "mitigation": "Prefer a fresh ThreadPage extraction over trimming the existing dashboard in place."
+    },
+    {
+      "id": "RISK-LARGE-HISTORY",
+      "summary": "Claude local history directories may be large enough to stall frequent refresh.",
+      "mitigation": "Index by path, mtime, and size; page results; keep selected detail separate."
+    },
+    {
+      "id": "RISK-ZERO-DEPENDENCY-CODEX-PARITY",
+      "summary": "Dropping the Python/FastAPI runtime may initially lose some Codex sqlite/log-derived metadata.",
+      "mitigation": "Ship transcript-first parity for Thread browsing, then add optional bundled enhancements only if they require no user install steps."
+    },
+    {
+      "id": "RISK-CACHE-CORRUPTION",
+      "summary": "AgentHUD-owned JSON cache files can become stale or corrupt.",
+      "mitigation": "Keep source transcripts authoritative, version cache schemas, handle corrupt JSON by rebuilding, and provide a rebuild-index command."
+    },
+    {
+      "id": "RISK-WEBVIEW-RENDER-SCALE",
+      "summary": "Rendering thousands of rows or long transcripts can make the webview feel frozen.",
+      "mitigation": "Virtualize/paginate lists, load full detail only on selection, and patch changed rows instead of rebuilding the whole page."
+    },
+    {
+      "id": "RISK-PRIVACY-SURPRISE",
+      "summary": "Thread previews can expose sensitive local prompt content in the list.",
+      "mitigation": "Add privacy mode, avoid exporting transcript contents, and make all data flow local-only."
+    }
+  ],
+  "orchestration": {
+    "threads": {
+      "scheduler": "019da175-eb9b-7ac2-a7b4-1f614f459688",
+      "implementation": "019da180-b86f-7cf2-9e6d-929d6656231e",
+      "checker": "019da180-e9d0-7ee1-8d78-e4608f939741"
+    },
+    "state_files": {
+      "dispatch_contract": ".codex-loop/state/dispatch_contract.json",
+      "implementation_report": ".codex-loop/state/implementation_report.json",
+      "check_report": ".codex-loop/state/check_report.json",
+      "last_dispatch": ".codex-loop/state/last_dispatch.json"
+    },
+    "policy": {
+      "optimize_requires_check_pass": true,
+      "check_verdict_values": [
+        "pass",
+        "revise",
+        "block"
+      ],
+      "one_tick_one_task": true
+    }
+  },
+  "data_roots": {
+    "codex": "/home/clashuser/.codex",
+    "claude": "/home/clashuser/.claude",
+    "note": "Use real local data for M4+ UI/integration validation in addition to fixtures."
+  }
+}

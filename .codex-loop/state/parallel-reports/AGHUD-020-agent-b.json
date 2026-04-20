@@ -1,0 +1,21 @@
+{
+  "task_id": "AGHUD-020",
+  "agent": "agent-b",
+  "status": "done",
+  "changed_files": [
+    "package.json",
+    "docs/agenthud/stale-reference-audit.md",
+    "scripts/audit/check-stale-references.js",
+    "src/host/message-protocol.test.js",
+    ".claude/plans/loloop/evolution-2026-04-19-agenthud-aghud-020-agent-b.md",
+    ".codex-loop/state/parallel-reports/AGHUD-020-agent-b.json"
+  ],
+  "validation_commands": [
+    "cd /home/clashuser/hzh/work_bo/agent_ui/agent_hud && node scripts/audit/check-stale-references.js",
+    "cd /home/clashuser/hzh/work_bo/agent_ui/agent_hud && node src/host/message-protocol.test.js"
+  ],
+  "validation_result": "pass (exit 0)",
+  "evidence_summary": "New Node audit script enforces high-precision stale substrings on package.json, extension.js, and production src/**/*.js (excludes *.test.js). Documented in docs/agenthud/stale-reference-audit.md; npm script audit:stale-refs; message-protocol.test.js runs audit subprocess. Baseline 0 violations.",
+  "risks": "Substring rules may miss renamed stale features or rare false positives if new code legitimately contains a marker string; extend STALE_SUBSTRINGS with care. Docs/ and tests are not fully covered by the scanner.",
+  "finished_at": "2026-04-19T15:53:27Z"
+}

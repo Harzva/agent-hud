@@ -1,0 +1,20 @@
+{
+  "task_id": "AGHUD-031",
+  "agent": "agent-c",
+  "status": "done",
+  "changed_files": [
+    "src/host/provider-contract.js",
+    "src/host/search-core.js",
+    "src/host/search-core.test.js",
+    "docs/agenthud/search-design.md",
+    ".claude/plans/loloop/evolution-2026-04-19-agenthud-aghud-031-agent-c.md",
+    ".codex-loop/state/parallel-reports/AGHUD-031-agent-c.json"
+  ],
+  "validation_commands": [
+    "cd /home/clashuser/hzh/work_bo/agent_ui/agent_hud && node src/host/search-core.test.js"
+  ],
+  "validation_result": "pass (exit 0); search-core smoke OK",
+  "evidence_summary": "Provider-neutral buildThreadSearchCorpus (list fields + optional projectLabel/sourcePath + drift blob). search-core: AND token match, normalizeQuery, heuristic ranking, rankThreadsBySearchQuery with stable ties. Design doc describes corpus and follow-up UI wiring.",
+  "risks": "thread-page still uses legacy substring filter; end-user search unchanged until integrated. Scoring tokens arbitrary; provider remote list filters may stay inconsistent.",
+  "finished_at": "2026-04-19T15:53:23Z"
+}

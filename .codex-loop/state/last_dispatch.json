@@ -1,0 +1,20 @@
+{
+  "mode": "check",
+  "agent_thread_id": "019da180-e9d0-7ee1-8d78-e4608f939741",
+  "started_at": "2026-04-19T23:26:28Z",
+  "finished_at": "2026-04-19T23:26:34Z",
+  "returncode": 90,
+  "summary": "check dispatch failed: delegated checker thread hit usage limit before producing a dispatch-aligned check_report.",
+  "last_message_file": "/home/clashuser/hzh/work_bo/agent_ui/agent_hud/.codex-loop/state/dispatch_logs/check_20260419_232628_last_message.txt",
+  "raw_log_path": "/home/clashuser/hzh/work_bo/agent_ui/agent_hud/.codex-loop/state/dispatch_logs/check_20260419_232628.jsonl",
+  "validation_failures": [
+    "check_report.dispatch_id_mismatch",
+    "checker_usage_limit"
+  ],
+  "report_path": ".codex-loop/state/check_report.json",
+  "tool_returncode": 1,
+  "task_id": "AGHUD-019",
+  "dispatch_id": "dispatch-20260419232612-check-AGHUD-019",
+  "ui_evidence_required": true,
+  "recovery_action": "Default next dispatch to check; rerun .codex-loop/scripts/dispatch_agent.sh check after checker-thread usage limit resets, then require a dispatch-aligned check_report before optimize."
+}

@@ -1,0 +1,178 @@
+{
+  "schema_version": 2,
+  "provider": "claude",
+  "updated_at": "2026-04-20T02:44:02.674Z",
+  "entries": [
+    {
+      "path": "/home/clashuser/hzh/work_bo/agent_ui/agent_hud/test/fixtures/claude/projects/-home-user-alpha-project/session-second.jsonl",
+      "size": 80,
+      "mtimeMs": 1776653042553.7893,
+      "cacheKey": "/home/clashuser/hzh/work_bo/agent_ui/agent_hud/test/fixtures/claude/projects/-home-user-alpha-project/session-second.jsonl:80:1776653042553",
+      "summary": {
+        "provider": "claude",
+        "id": "session-second",
+        "title": "project",
+        "projectLabel": "project",
+        "cwd": "/home/user/alpha/project",
+        "status": "unknown",
+        "updatedAt": "2026-04-20T02:44:02.554Z",
+        "sourcePath": "/home/clashuser/hzh/work_bo/agent_ui/agent_hud/test/fixtures/claude/projects/-home-user-alpha-project/session-second.jsonl",
+        "preview": "I will inspect the local fixture.",
+        "messageCount": 1
+      },
+      "hiddenRecords": {},
+      "errorCount": 0,
+      "drift": {
+        "unknownRecordTypes": {},
+        "totalUnknownRecords": 0,
+        "fallbackCount": 0
+      }
+    },
+    {
+      "path": "/home/clashuser/hzh/work_bo/agent_ui/agent_hud/test/fixtures/claude/projects/-home-user-drift-project/session-drift.jsonl",
+      "size": 755,
+      "mtimeMs": 1776604607915.2944,
+      "cacheKey": "/home/clashuser/hzh/work_bo/agent_ui/agent_hud/test/fixtures/claude/projects/-home-user-drift-project/session-drift.jsonl:755:1776604607915",
+      "summary": {
+        "provider": "claude",
+        "id": "session-drift",
+        "title": "Test drift diagnostics.",
+        "projectLabel": "project",
+        "cwd": "/home/user/drift/project",
+        "status": "unknown",
+        "updatedAt": "2026-04-19T13:16:47.915Z",
+        "sourcePath": "/home/clashuser/hzh/work_bo/agent_ui/agent_hud/test/fixtures/claude/projects/-home-user-drift-project/session-drift.jsonl",
+        "preview": "Test drift diagnostics.\nI can help with that.",
+        "createdAt": "2026-04-19T12:00:00.000Z",
+        "model": "2.0",
+        "messageCount": 2
+      },
+      "hiddenRecords": {
+        "unknown_event": 1,
+        "custom_notification": 1,
+        "permission-mode": 1,
+        "tool_result": 1,
+        "yet_another_type": 1
+      },
+      "errorCount": 0,
+      "drift": {
+        "unknownRecordTypes": {
+          "unknown_event": 1,
+          "custom_notification": 1,
+          "yet_another_type": 1
+        },
+        "totalUnknownRecords": 3,
+        "formatVersion": "2.0",
+        "fallbackCount": 4
+      }
+    },
+    {
+      "path": "/home/clashuser/hzh/work_bo/agent_ui/agent_hud/test/fixtures/claude/projects/-home-user-empty-project/session-empty.jsonl",
+      "size": 1,
+      "mtimeMs": 1776604006431.2776,
+      "cacheKey": "/home/clashuser/hzh/work_bo/agent_ui/agent_hud/test/fixtures/claude/projects/-home-user-empty-project/session-empty.jsonl:1:1776604006431",
+      "summary": {
+        "provider": "claude",
+        "id": "session-empty",
+        "title": "project",
+        "projectLabel": "project",
+        "cwd": "/home/user/empty/project",
+        "status": "unknown",
+        "updatedAt": "2026-04-19T13:06:46.431Z",
+        "sourcePath": "/home/clashuser/hzh/work_bo/agent_ui/agent_hud/test/fixtures/claude/projects/-home-user-empty-project/session-empty.jsonl",
+        "messageCount": 0
+      },
+      "hiddenRecords": {},
+      "errorCount": 0,
+      "drift": {
+        "unknownRecordTypes": {},
+        "totalUnknownRecords": 0,
+        "fallbackCount": 0
+      }
+    },
+    {
+      "path": "/home/clashuser/hzh/work_bo/agent_ui/agent_hud/test/fixtures/claude/projects/-home-user-error-project/session-error.jsonl",
+      "size": 223,
+      "mtimeMs": 1776604005395.3098,
+      "cacheKey": "/home/clashuser/hzh/work_bo/agent_ui/agent_hud/test/fixtures/claude/projects/-home-user-error-project/session-error.jsonl:223:1776604005395",
+      "summary": {
+        "provider": "claude",
+        "id": "session-error",
+        "title": "Hello after error.",
+        "projectLabel": "project",
+        "cwd": "/home/user/error/project",
+        "status": "unknown",
+        "updatedAt": "2026-04-19T13:06:45.395Z",
+        "sourcePath": "/home/clashuser/hzh/work_bo/agent_ui/agent_hud/test/fixtures/claude/projects/-home-user-error-project/session-error.jsonl",
+        "preview": "Hello after error.\nRecovery response.",
+        "createdAt": "2026-04-19T00:00:01.000Z",
+        "messageCount": 2
+      },
+      "hiddenRecords": {},
+      "errorCount": 1,
+      "drift": {
+        "unknownRecordTypes": {},
+        "totalUnknownRecords": 0,
+        "fallbackCount": 0
+      }
+    },
+    {
+      "path": "/home/clashuser/hzh/work_bo/agent_ui/agent_hud/test/fixtures/claude/projects/-home-user-rich-project/session-rich.jsonl",
+      "size": 1038,
+      "mtimeMs": 1776550966338.2163,
+      "cacheKey": "/home/clashuser/hzh/work_bo/agent_ui/agent_hud/test/fixtures/claude/projects/-home-user-rich-project/session-rich.jsonl:1038:1776550966338",
+      "summary": {
+        "provider": "claude",
+        "id": "session-rich",
+        "title": "Need help with parser robustness.",
+        "projectLabel": "rich-project",
+        "cwd": "/home/user/rich/project",
+        "status": "unknown",
+        "updatedAt": "2026-04-19T00:00:07.000Z",
+        "sourcePath": "/home/clashuser/hzh/work_bo/agent_ui/agent_hud/test/fixtures/claude/projects/-home-user-rich-project/session-rich.jsonl",
+        "preview": "Need help with parser robustness.\nUse the provider contract.",
+        "createdAt": "2026-04-19T00:00:00.000Z",
+        "messageCount": 5
+      },
+      "hiddenRecords": {
+        "system": 1,
+        "permission-mode": 1,
+        "file-history-snapshot": 1,
+        "last-prompt": 1
+      },
+      "errorCount": 1,
+      "drift": {
+        "unknownRecordTypes": {},
+        "totalUnknownRecords": 0,
+        "fallbackCount": 1
+      }
+    },
+    {
+      "path": "/home/clashuser/hzh/work_bo/agent_ui/agent_hud/test/fixtures/claude/projects/-home-user-alpha-project/session-main.jsonl",
+      "size": 115,
+      "mtimeMs": 1776549342300.3586,
+      "cacheKey": "/home/clashuser/hzh/work_bo/agent_ui/agent_hud/test/fixtures/claude/projects/-home-user-alpha-project/session-main.jsonl:115:1776549342300",
+      "summary": {
+        "provider": "claude",
+        "id": "session-main",
+        "title": "Find the failing test.",
+        "projectLabel": "project",
+        "cwd": "/home/user/alpha/project",
+        "status": "unknown",
+        "updatedAt": "2026-04-18T21:55:42.300Z",
+        "sourcePath": "/home/clashuser/hzh/work_bo/agent_ui/agent_hud/test/fixtures/claude/projects/-home-user-alpha-project/session-main.jsonl",
+        "preview": "Find the failing test.",
+        "messageCount": 1
+      },
+      "hiddenRecords": {
+        "system": 1
+      },
+      "errorCount": 0,
+      "drift": {
+        "unknownRecordTypes": {},
+        "totalUnknownRecords": 0,
+        "fallbackCount": 1
+      }
+    }
+  ]
+}

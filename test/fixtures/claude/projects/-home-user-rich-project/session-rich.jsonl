@@ -1,0 +1,9 @@
+{"type":"system","timestamp":"2026-04-19T00:00:00.000Z","cwd":"/home/user/rich/project","project_label":"rich-project"}
+{"type":"user","timestamp":"2026-04-19T00:00:01.000Z","message":{"content":"Need help with parser robustness."}}
+{"type":"assistant","timestamp":"2026-04-19T00:00:02.000Z","message":{"content":[{"type":"text","text":"I can help."},{"type":"tool_use","name":"rg","input":{"pattern":"parser"}},{"type":"text","text":"Searching the workspace."}]}}
+{"type":"tool_result","timestamp":"2026-04-19T00:00:03.000Z","message":{"content":"Found matches in claude.js"}}
+{"type":"assistant","timestamp":"2026-04-19T00:00:04.000Z","message":{"content":[{"type":"text","text":"Use the provider contract."}]}}
+{"type":"permission-mode","timestamp":"2026-04-19T00:00:05.000Z","message":{"content":"acceptEdits"}}
+{"type":"file-history-snapshot","timestamp":"2026-04-19T00:00:06.000Z","files":["src/host/providers/claude.js"]}
+{"type":"last-prompt","timestamp":"2026-04-19T00:00:07.000Z","prompt":"Need help with parser robustness."}
+{

@@ -1,0 +1,20 @@
+{
+  "task_id": "AGHUD-030",
+  "agent": "agent-c",
+  "status": "done",
+  "changed_files": [
+    "docs/agenthud/large-history-perf-audit-baseline.md",
+    "scripts/perf/measure-large-history-baseline.js",
+    ".claude/plans/loloop/evolution-2026-04-19-agenthud-aghud-030-agent-c.md",
+    ".codex-loop/state/parallel-reports/AGHUD-030-agent-c.json"
+  ],
+  "validation_commands": [
+    "cd /home/clashuser/hzh/work_bo/agent_ui/agent_hud && node scripts/perf/measure-large-history-baseline.js --scales=1 --cleanup",
+    "cd /home/clashuser/hzh/work_bo/agent_ui/agent_hud && node scripts/perf/measure-large-history-baseline.js --real-codex",
+    "cd /home/clashuser/hzh/work_bo/agent_ui/agent_hud && node scripts/perf/measure-large-history-baseline.js --real-claude"
+  ],
+  "validation_result": "pass (exit 0): synthetic 1-thread + cleanup; real Codex (~/.codex/sessions) and real Claude (~/.claude/projects) runs completed all hotspot phases on dev machine",
+  "evidence_summary": "Script now supports --real / --real-codex / --real-claude / explicit --codex-sessions / --claude-projects; Claude uses temp cacheRoot + forceRebuild. Doc §8 updated. JSON output omits listParse.threads to limit size.",
+  "risks": "Real Codex list time scales with rollout file size/count (sample: ~11s for 184 threads on one machine). Full synthetic 50–500 sweep still optional; archive --json after --real for regression baselines.",
+  "finished_at": "2026-04-19T15:27:42Z"
+}
