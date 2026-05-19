@@ -2,6 +2,8 @@
 
 **AgentHUD** is a preview VS Code extension for browsing local agent threads from **Codex** and **Claude** in one place.
 
+GitHub: https://github.com/Harzva/agent-hud
+
 ## Why AgentHUD
 
 AgentHUD focuses on a simple workflow: open VS Code, inspect your local agent history, jump between providers quickly, and drill into a thread without starting any extra service.
