@@ -1,45 +1,73 @@
 # AgentHUD 🛰️
 
-**AgentHUD** is a high-performance VS Code extension for inspecting and managing local agent threads from **Codex**, **Claude**, and now **Gemini**.
+**AgentHUD** is a preview VS Code extension for browsing local agent threads from **Codex** and **Claude** in one place.
 
-## 🚀 Project Status: Autonomous Evolution
+## Why AgentHUD
 
-AgentHUD has transitioned into an **Autonomous Engineering Workspace**. It is currently being developed and maintained by a self-evolving **Gemini Reflective Loop**.
+AgentHUD focuses on a simple workflow: open VS Code, inspect your local agent history, jump between providers quickly, and drill into a thread without starting any extra service.
 
-### 🏛️ The "Project Command Center" Architecture
-This project follows a strict multi-agent orchestration pattern:
-- **Commander (Plan ID)**: Guided by `GEMINI_ROADMAP.md`, ensuring long-term strategic consistency.
-- **Specialists (Expert Threads)**: Dedicated Gemini sessions for Implementation and Checking, each with independent memory.
-- **Black Box (Audit Trail)**: 100% traceability through `active.log` and detailed dispatch logs.
+### Highlights
 
-## 🛠️ Supported Providers
+- **Local-first runtime**: reads local transcript sources directly from the extension host.
+- **Zero-service architecture**: no Python daemon, backend server, or extra post-install setup.
+- **Unified thread view**: switch between Codex and Claude from the same UI surface.
+- **Cache-first experience**: hydrate cached summaries quickly, then refresh in the background.
+- **Developer-friendly controls**: commands and settings for provider selection, refresh, quick switch, and scan limits.
 
-- **Codex**: Local rollout scanning with zero-service architecture.
-- **Claude**: High-speed JSONL transcript indexing and parser.
-- **Gemini**: (New) Reflective loop integration with evolution-based thread tracking.
+## Supported Providers
 
-## 💻 Development & Operations
+- **Codex**: scans local session and rollout data.
+- **Claude**: indexes local `~/.claude/projects` transcripts.
 
-### 1. Verification
-Ensure the integrity of the core and adapters:
+> The repository also contains Gemini-related workflow assets and skills, but the current extension runtime is centered on Codex and Claude.
+
+## Quick Start
+
+### Run the extension locally
+
 ```bash
+npm install
+```
+
+Then open this repository in VS Code and press `F5` to launch an Extension Development Host.
+
+### Open AgentHUD
+
+Use the Command Palette and run one of the built-in commands:
+
+- `AgentHUD: Open`
+- `AgentHUD: Refresh`
+- `AgentHUD: Reveal Provider`
+- `AgentHUD: Quick Switch`
+
+## Configuration
+
+AgentHUD currently exposes a small set of workspace settings:
+
+- `agenthud.defaultProvider`: choose the provider selected on open.
+- `agenthud.defaultSurface`: open in the editor, sidebar, or panel.
+- `agenthud.codexListParseConcurrency`: tune Codex parsing parallelism.
+- `agenthud.codexListScanMaxRollouts`: cap Codex list refresh scan size.
+- `agenthud.claudeListScanMaxSources`: cap Claude indexing work per refresh.
+- `agenthud.summaryCacheMaxSummaries`: limit summary cache writes.
+- `agenthud.codexDetailMaxRolloutAttempts`: limit Codex detail fallback scans.
+
+## Development
+
+Run the existing repository checks:
+
+```bash
+npm test
 npm run verify
 ```
 
-### 2. Autonomous Loop (Gemini)
-To activate the self-healing development cycle:
-```bash
-python3 .gemini-loop/scripts/run_daemon.py
-```
-Monitor the commander's log:
-```bash
-tail -f .gemini-loop/state/active.log
-```
+## Documentation
 
-## 📖 Documentation
-- [Gemini Roadmap](./GEMINI_ROADMAP.md): Current mission status and milestones.
-- [Provider Guide](./docs/agenthud/provider-extension-guide.md): How to add new agent sources.
-- [Reflective Loop Skill](./gemini-loop-skill/README.md): Deep dive into the autonomous engine.
+- [Product roadmap](./roadmap.md)
+- [Zero-service runtime architecture](./docs/agenthud/zero-service-runtime.md)
+- [Provider extension guide](./docs/agenthud/provider-extension-guide.md)
+- [Feature allowlist](./docs/agenthud/feature-allowlist.md)
+- [Gemini loop skill](./gemini-loop-skill/README.md)
 
 ---
-*Built with ❤️ and Gemini CLI.*
+Built with VS Code extension APIs and local-first provider adapters.
